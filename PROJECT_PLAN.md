@@ -1,6 +1,6 @@
 # Project Plan: High-Performance DEX Aggregator
 
-This document outlines the development plan to refactor the application into a specialized, high-performance DEX price aggregator for Ethereum and Polygon. The architecture is designed for speed, accuracy, and scalability, centered around a multi-layered caching system and an efficient request-batching pipeline.
+This document outlines the development plan to refactor the application into a specialized, high-performance DEX price aggregator for Ethereum and Polygon. The architecture is designed for speed, accuracy, and scalability, centered around a multi-layered caching system and an efficient request-batching pipeline. The core UI and business logic will be shared, with changes focused on the data and infrastructure layers.
 
 ---
 
@@ -8,35 +8,26 @@ This document outlines the development plan to refactor the application into a s
 
 *Objective: Establish the core data structures and the "cold path" for discovering and storing information about new tokens and liquidity pools.*
 
-### **Step 1.1: Restrict Network Scope**
+### **Step 1.1: Restrict Network Scope (Completed)**
 - **Alignment:** Refactor
-- *Note: The current app supports multiple chains. This step simplifies the codebase by removing all logic not related to Ethereum and Polygon, which is a prerequisite for the new focused design.*
-- [ ] Review `shared/tokens.ts` and remove chain configurations other than Ethereum and Polygon.
-- [X] Update `client/src/components/ChainSelector.tsx` to remove the component entirely.
-- [X] Refactor `server/infrastructure/adapters/EthersAdapter.ts` to remove logic for connecting to unsupported chains.
-- [ ] Clean up any other constants or configurations in the codebase related to now-removed chains.
-- [ ] Verify that `server/routes.ts` is updated to remove the `:chain` parameter from API endpoints.
+- **Status:** Complete
+- *Note: This step simplified the codebase by removing all logic not related to chains other than Ethereum and Polygon, which is a prerequisite for the new focused design.*
+- [X] Review `shared/tokens.ts` and confirm only Ethereum and Polygon configs exist.
+- [X] Update `client/src/pages/Dashboard.tsx` to remove the `ChainSelector` component.
+- [X] Refactor `server/infrastructure/adapters/EthersAdapter.ts` to handle multiple providers.
+- [X] Verify that `server/routes.ts` is updated to remove the `:chain` parameter from API endpoints.
 
-### **Step 1.2: Establish Server-Side File Storage**
-- **Alignment:** New
-- *Note: The project currently does not use a file-based database. This step creates the `data` directory and JSON files that will act as the persistent store for tokens and pools.*
-- [ ] Create a new directory: `server/data`.
-- [ ] Create the token storage file: `server/data/tokens.json`.
-    - Schema: `[{ "name": string, "symbol": string, "address": string, "chainId": number, "logoURI": string }]`
-    - Pre-populate with WETH, USDC, and USDT for Ethereum (1) and Polygon (137).
-- [ ] Create the pool storage file: `server/data/pools.json`.
-    - Schema: `{ "<tokenAddress_chainId>": ["poolAddress1", "poolAddress2", ...] }`
-- [ ] Create a new service `server/application/services/StorageService.ts` to handle atomic reads and writes to these JSON files.
-
-### **Step 1.3: Implement the "Cold Path" Discovery Service**
-- **Alignment:** New
-- *Note: The current system has no mechanism for discovering new tokens. This service will be built from scratch to integrate with Etherscan (or another provider) to find and save new assets.*
-- [ ] Create a new service: `server/application/services/DiscoveryService.ts`.
-- [ ] Add an Etherscan API client. Store the API key in environment variables.
-- [ ] Implement a `findToken(query: string)` function to search for a token.
-- [ ] Implement a `findPools(tokenAddress: string)` function to identify its liquidity pools.
-- [ ] Create a new internal function that uses the `DiscoveryService` and `StorageService` to find and save new asset information when a token is not found in `tokens.json`.
-- [ ] Implement filtering to discard low-liquidity or unverified pools.
+### **Step 1.2: Implement "Cold Path" Data Discovery & Storage**
+- **Alignment:** Feature
+- *Note: This step creates the background process that discovers all possible token pairs and their liquidity pools, storing the results in chain-specific files for the "hot path" to use. This discovery happens once on application startup.*
+- [ ] Create the data directory: `server/data`.
+- [ ] Create `server/data/tokens.json` seeded with popular tokens (e.g., WETH, USDC, USDT) for both Ethereum (1) and Polygon (137).
+- [ ] Create empty data files for each chain: `server/data/pools_ethereum.json` and `server/data/pools_polygon.json`.
+    - Schema: `{ "<tokenPairKey>": "poolAddress" }` (e.g., `{"0x..._0x...": "0x..."}`)
+- [ ] Create a new `StorageService.ts` to handle atomic reads/writes to these files.
+- [ ] Implement a `DiscoveryService.ts` that, on startup, iterates through every possible pair of tokens in `tokens.json` for each configured chain.
+- [ ] For each pair, the service will use the `EthersAdapter` to query the appropriate Uniswap V3 factory contract to find the liquidity pool address.
+- [ ] Discovered pool addresses will be saved to the corresponding chain-specific file (e.g., `pools_ethereum.json`) via the `StorageService`.
 
 ---
 
@@ -64,11 +55,12 @@ This document outlines the development plan to refactor the application into a s
 
 ### **Step 2.3: Build the Multicall Query Engine**
 - **Alignment:** Enhancement
-- *Note: `EthersAdapter.ts` currently exists to fetch basic token data. It will be significantly enhanced to construct and execute optimized `multicall` requests to fetch prices from multiple pools in a single RPC call.*
-- [ ] Refactor `server/infrastructure/adapters/EthersAdapter.ts` into a `QueryEngine.ts` service.
-- [ ] Install a library to simplify multicall operations (e.g., `ethers-multicall-provider`).
-- [ ] Implement `fetchPrices(network, tokensWithPools)` to construct and execute the multicall.
-- [ ] It will return a structured result mapping each token to raw data from its queried pools.
+- *Note: This step will enhance the `EthersAdapter` to execute optimized `multicall` requests while managing multiple RPC providers for resilience.*
+- [ ] Enhance `server/infrastructure/adapters/EthersAdapter.ts`.
+- [ ] The adapter's constructor will accept a list of RPC endpoints (e.g., from Alchemy, Infura) for each supported chain, configured via environment variables.
+- [ ] Implement a round-robin strategy within the adapter to rotate through RPC providers for each request, maximizing reliability.
+- [ ] The `getBatchPoolData` method will be updated to handle RPC failures gracefully and retry with the next provider in the rotation.
+- [ ] The method will return a structured result mapping each token to raw data from its queried pools.
 
 ---
 

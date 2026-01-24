@@ -1,26 +1,29 @@
-import { promises as fs } from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { Token } from '../../domain/entities';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dataDir = path.join(__dirname, '../../data');
-const tokensPath = path.join(dataDir, 'tokens.json');
-const poolsPath = path.join(dataDir, 'pools.json');
+const DATA_DIR = path.join(__dirname, '../../data');
 
 export class StorageService {
-  async getTokens(): Promise<Token[]> {
-    const data = await fs.readFile(tokensPath, 'utf-8');
-    return JSON.parse(data);
+  async read(fileName: string): Promise<any> {
+    try {
+      const filePath = path.join(DATA_DIR, fileName);
+      const data = await fs.readFile(filePath, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        // File doesn't exist, return default value for the specific file
+        if (fileName.startsWith('pools_')) {
+          return {};
+        } else if (fileName === 'tokens.json') {
+          return [];
+        }
+      }
+      throw error;
+    }
   }
 
-  async getPools(): Promise<any> {
-    const data = await fs.readFile(poolsPath, 'utf-8');
-    return JSON.parse(data);
-  }
-
-  async savePools(pools: any): Promise<void> {
-    await fs.writeFile(poolsPath, JSON.stringify(pools, null, 2));
+  async write(fileName: string, data: any): Promise<void> {
+    const filePath = path.join(DATA_DIR, fileName);
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
   }
 }

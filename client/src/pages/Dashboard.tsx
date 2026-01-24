@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../../../shared/routes';
-import { SwapInterface } from '../components/SwapInterface';
-import { TokenMetadata } from '../../../shared/tokens';
+import { api } from '../../shared/routes';
+import { SwapInterface } from '@/components/SwapInterface';
+import { TokenMetadata } from '../../shared/tokens';
+import { Sidebar } from '@/components/ui/sidebar';
 
 export default function Dashboard() {
   const { data: tokens, isLoading, error } = useQuery<{
@@ -23,9 +24,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
-      <h1>Swap</h1>
-      <SwapInterface tokens={tokens.tokens} />
+    <div className="flex">
+      <Sidebar />
+      <main className="flex-1 p-8">
+        <h1 className="text-2xl font-bold mb-8">Swap</h1>
+        <SwapInterface tokens={tokens.tokens} />
+      </main>
     </div>
   );
 }

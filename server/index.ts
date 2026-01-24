@@ -2,10 +2,13 @@ import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
-import { SnapshotWorker } from "./application/workers/SnapshotWorker";
-import { SnapshotService } from "./application/services/SnapshotService";
 import { StorageService } from "./application/services/StorageService";
 import { EthersAdapter } from "./infrastructure/adapters/EthersAdapter";
+import { DiscoveryService } from "./application/services/DiscoveryService";
+import { ControllerService } from "./application/services/ControllerService";
+import { RequestBatcher } from "./application/services/RequestBatcher";
+import { CacheService } from "./application/services/CacheService";
+import { DispatcherService } from "./application/services/DispatcherService";
 
 const app = express();
 const httpServer = createServer(app);
@@ -66,30 +69,41 @@ app.use((req, res, next) => {
 (async () => {
   // === Clean Architecture Setup ===
   const storageService = new StorageService();
+  const cacheService = new CacheService();
+  const dispatcherService = new DispatcherService();
 
-  const ethRpc = process.env.ALCHEMY_API_KEY
+  const ethRpcUrl = process.env.ALCHEMY_API_KEY
     ? `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
     : process.env.INFURA_API_KEY
     ? `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
     : null;
 
-  const polygonRpc = process.env.POLYGON_RPC_URL;
+  const polygonRpcUrl = process.env.POLYGON_RPC_URL;
 
-  if (!ethRpc || !polygonRpc) {
+  if (!ethRpcUrl || !polygonRpcUrl) {
     log("Missing Alchemy/Infura API key or Polygon RPC URL. Please set ALCHEMY_API_KEY/INFURA_API_KEY and POLYGON_RPC_URL environment variables.");
     process.exit(1);
   }
 
-  const ethereumAdapter = new EthersAdapter(ethRpc);
-  const polygonAdapter = new EthersAdapter(polygonRpc);
+  const rpcUrls = {
+    1: ethRpcUrl,
+    137: polygonRpcUrl
+  };
 
-  const snapshotService = new SnapshotService([ethereumAdapter, polygonAdapter]);
+  const ethersAdapter = new EthersAdapter(rpcUrls);
 
-  // Initialize and start the background worker
-  const snapshotWorker = new SnapshotWorker(snapshotService, storageService);
-  snapshotWorker.start(60000); // Refresh every 60 seconds
+  // Cold Path: One-time discovery on startup
+  const discoveryService = new DiscoveryService(storageService, ethersAdapter);
+  await discoveryService.discoverPools();
 
-  await registerRoutes(httpServer, app, snapshotService, storageService);
+  // Hot Path: Real-time quoting services
+  const controllerService = new ControllerService(ethersAdapter, storageService, cacheService, dispatcherService);
+  const requestBatcher = new RequestBatcher(controllerService);
+
+  app.locals.requestBatcher = requestBatcher;
+  app.locals.storageService = storageService;
+
+  await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

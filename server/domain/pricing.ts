@@ -1,65 +1,49 @@
-import { Pool, Token } from "./entities";
+import { PoolData } from '../infrastructure/adapters/EthersAdapter';
 
-// === Domain Layer: Pure Functions ===
-
-/**
- * Computes the spot price of a token in terms of the stable token (USDC/USDT).
- * Supports both V2 (reserves) and V3 (sqrtPriceX96).
- * 
- * @param pool The liquidity pool containing the token and a stablecoin
- * @param tokenAddress The address of the token we want to price
- * @param stableTokenAddress The address of the stablecoin (USDC/USDT)
- * @returns Price in USD
- */
-export function computeSpotPrice(
-  pool: Pool, 
-  tokenAddress: string, 
-  stableTokenAddress: string
-): number {
-  const isToken0 = pool.token0.address.toLowerCase() === tokenAddress.toLowerCase();
-  
-  // V3 Logic: Price = (sqrtPriceX96 / 2^96)^2
-  if (pool.sqrtPriceX96) {
-    const sqrtPriceX96 = Number(pool.sqrtPriceX96);
-    const Q96 = Math.pow(2, 96);
-    const priceRatio = Math.pow(sqrtPriceX96 / Q96, 2);
-    
-    // Uniswap V3: priceRatio = (token1 / token0)
-    // To get price of token0 in terms of token1: price = priceRatio
-    // To get price of token1 in terms of token0: price = 1 / priceRatio
-    
-    // Adjust for decimals
-    const decimalAdjustment = Math.pow(10, pool.token0.decimals - pool.token1.decimals);
-    const adjustedPriceRatio = priceRatio * decimalAdjustment;
-    
-    // If target is token0 (e.g. WETH), price in stable (token1) is adjustedPriceRatio
-    // If target is token1 (e.g. USDC), price in WETH (token0) is 1 / adjustedPriceRatio
-    const finalPrice = isToken0 ? adjustedPriceRatio : 1 / adjustedPriceRatio;
-    
-    return finalPrice;
-  }
-
-  // V2 Logic: Reserve-based
-  const tokenReserve = isToken0 ? pool.reserve0 : pool.reserve1;
-  const stableReserve = isToken0 ? pool.reserve1 : pool.reserve0;
-  
-  const token = isToken0 ? pool.token0 : pool.token1;
-  const stable = isToken0 ? pool.token1 : pool.token0;
-
-  if (tokenReserve === BigInt(0)) return 0;
-
-  const rToken = Number(tokenReserve) / Math.pow(10, token.decimals);
-  const rStable = Number(stableReserve) / Math.pow(10, stable.decimals);
-
-  return rStable / rToken;
+// A placeholder for a more complex pricing result
+export interface Quote {
+  price: number;
+  poolAddress: string;
 }
 
-export function computeLiquidityUSD(pool: Pool, priceToken0: number, priceToken1: number): number {
-  // V3 uses virtual liquidity, for simple dashboard we can approximate with TVL if reserves are provided
-  // or use the liquidity parameter for relative depth. 
-  // For this prototype, we'll continue using TVL (sum of both sides in USD)
-  const r0 = Number(pool.reserve0) / Math.pow(10, pool.token0.decimals);
-  const r1 = Number(pool.reserve1) / Math.pow(10, pool.token1.decimals);
-  
-  return (r0 * priceToken0) + (r1 * priceToken1);
+/**
+ * Calculates the best swap price from a list of pools.
+ * For now, this is a placeholder. In a real scenario, this would involve
+ * complex calculations considering liquidity, fees, and multi-hop swaps.
+ * 
+ * @param tokenInAddress The address of the input token
+ * @param tokenOutAddress The address of the output token
+ * @param amountIn The amount of the input token
+ * @param poolData An array of raw data from the relevant liquidity pools
+ * @returns The best quote found
+ */
+export function calculateBestPrice(
+  tokenInAddress: string,
+  tokenOutAddress: string,
+  amountIn: string, 
+  poolData: PoolData[],
+): Quote | null {
+  console.log(`Pricing: Calculating best price for ${amountIn} of ${tokenInAddress} to ${tokenOutAddress}`);
+  console.log(`Pricing: Using data from ${poolData.length} pools.`);
+
+  if (poolData.length === 0) {
+    return null;
+  }
+
+  // TODO: Implement actual pricing logic here.
+  // This would involve iterating through the pools, calculating the output amount
+  // for each one, and selecting the best rate.
+
+  // For now, we will just return a dummy quote based on the first pool.
+  const firstPool = poolData[0];
+  const dummyPrice = 1 / (Number(firstPool.sqrtPriceX96) / 2**96)**2;
+
+  const quote: Quote = {
+    price: dummyPrice, 
+    poolAddress: firstPool.address,
+  };
+
+  console.log(`Pricing: Found dummy price of ${quote.price} from pool ${quote.poolAddress}`);
+
+  return quote;
 }

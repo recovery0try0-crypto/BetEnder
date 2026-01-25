@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5173;
 
 // The backend server will run on a fixed port
-const backendPort = 3001;
+const backendPort = 3002;
 
 export default defineConfig(async () => ({
   plugins: [

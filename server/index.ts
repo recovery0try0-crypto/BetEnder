@@ -80,7 +80,7 @@ const discoveryService = new DiscoveryService(storageService, ethersAdapter);
 // Register the routes
 registerRoutes(server, app);
 
-const port = 3001;
+const port = 3002;
 server.listen(port, () =>
   console.log(`Server is running on port ${port}`)
 );

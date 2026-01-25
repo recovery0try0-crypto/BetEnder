@@ -1,0 +1,875 @@
+2026-01-24T20:02:15Z [web] <Firebase Studio> Starting preview...
+2026-01-24T20:02:15Z [web] Waiting for your web server to start serving
+2026-01-24T20:02:15Z [web] 
+2026-01-24T20:02:15Z [web] > rest-express@1.0.0 dev
+2026-01-24T20:02:15Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T20:02:15Z [web] 
+2026-01-24T20:02:15Z [web] Error: sh: line 1: tsx: command not found
+2026-01-24T20:02:15Z [web] 
+2026-01-24T20:02:16Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T20:42:29Z [web] <Firebase Studio> Starting preview...
+2026-01-24T20:42:29Z [web] Waiting for your web server to start serving
+2026-01-24T20:42:30Z [web] 
+2026-01-24T20:42:30Z [web] > rest-express@1.0.0 dev
+2026-01-24T20:42:30Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T20:42:30Z [web] 
+2026-01-24T20:42:33Z [web] 8:42:33 PM [express] Missing Alchemy/Infura API key or Polygon RPC URL. Please set ALCHEMY_API_KEY/INFURA_API_KEY and POLYGON_RPC_URL environment variables.
+2026-01-24T20:42:33Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T20:45:28Z [web] <Firebase Studio> Starting preview...
+2026-01-24T20:45:28Z [web] Waiting for your web server to start serving
+2026-01-24T20:45:28Z [web] 
+2026-01-24T20:45:28Z [web] > rest-express@1.0.0 dev
+2026-01-24T20:45:28Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T20:45:28Z [web] 
+2026-01-24T20:45:29Z [web] 8:45:29 PM [express] Missing Alchemy/Infura API key or Polygon RPC URL. Please set ALCHEMY_API_KEY/INFURA_API_KEY and POLYGON_RPC_URL environment variables.
+2026-01-24T20:45:29Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T20:46:42Z [web] <Firebase Studio> Starting preview...
+2026-01-24T20:46:42Z [web] Waiting for your web server to start serving
+2026-01-24T20:46:43Z [web] 
+2026-01-24T20:46:43Z [web] > rest-express@1.0.0 dev
+2026-01-24T20:46:43Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T20:46:43Z [web] 
+2026-01-24T20:46:44Z [web] 8:46:44 PM [express] Missing Alchemy/Infura API key or Polygon RPC URL. Please set ALCHEMY_API_KEY/INFURA_API_KEY and POLYGON_RPC_URL environment variables.
+2026-01-24T20:46:44Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T21:04:46Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:04:46Z [web] Waiting for your web server to start serving
+2026-01-24T21:04:46Z [web] 
+2026-01-24T21:04:46Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:04:46Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T21:04:46Z [web] 
+2026-01-24T21:04:47Z [web] Error: 
+2026-01-24T21:04:47Z [web] node:internal/modules/run_main:128
+2026-01-24T21:04:47Z [web]     triggerUncaughtException(
+2026-01-24T21:04:47Z [web]     ^
+2026-01-24T21:04:47Z [web] 
+2026-01-24T21:04:47Z [web] Error: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/shared/routes' imported from /home/user/DexAggregator/server/routes.ts
+2026-01-24T21:04:47Z [web]     at finalizeResolution (node:internal/modules/esm/resolve:265:11)
+2026-01-24T21:04:47Z [web]     at moduleResolve (node:internal/modules/esm/resolve:933:10)
+2026-01-24T21:04:47Z [web]     at defaultResolve (node:internal/modules/esm/resolve:1169:11)
+2026-01-24T21:04:47Z [web]     at nextResolve (node:internal/modules/esm/hooks:868:28)
+2026-01-24T21:04:47Z [web]     at resolveBase (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769288687052:2:3744)
+2026-01-24T21:04:47Z [web]     at async resolveDirectory (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769288687052:2:4237)
+2026-01-24T21:04:47Z [web]     at async resolve (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769288687052:2:5355)
+2026-01-24T21:04:47Z [web]     at async nextResolve (node:internal/modules/esm/hooks:868:22)
+2026-01-24T21:04:47Z [web]     at async Hooks.resolve (node:internal/modules/esm/hooks:306:24)
+2026-01-24T21:04:47Z [web]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
+2026-01-24T21:04:47Z [web]   code: 'ERR_MODULE_NOT_FOUND',
+2026-01-24T21:04:47Z [web]   url: 'file:///home/user/shared/routes'
+2026-01-24T21:04:47Z [web] }
+2026-01-24T21:04:47Z [web] 
+2026-01-24T21:04:47Z [web] Error: 
+2026-01-24T21:04:47Z [web] Node.js v20.18.1
+2026-01-24T21:04:47Z [web] 
+2026-01-24T21:04:47Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T21:08:13Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:08:13Z [web] Waiting for your web server to start serving
+2026-01-24T21:08:13Z [web] 
+2026-01-24T21:08:13Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:08:13Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T21:08:13Z [web] 
+2026-01-24T21:08:14Z [web] Error: 
+2026-01-24T21:08:14Z [web] node:internal/modules/run_main:128
+2026-01-24T21:08:14Z [web]     triggerUncaughtException(
+2026-01-24T21:08:14Z [web]     ^
+2026-01-24T21:08:14Z [web] 
+2026-01-24T21:08:14Z [web] Error: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/shared/routes' imported from /home/user/DexAggregator/server/routes.ts
+2026-01-24T21:08:14Z [web]     at finalizeResolution (node:internal/modules/esm/resolve:265:11)
+2026-01-24T21:08:14Z [web]     at moduleResolve (node:internal/modules/esm/resolve:933:10)
+2026-01-24T21:08:14Z [web]     at defaultResolve (node:internal/modules/esm/resolve:1169:11)
+2026-01-24T21:08:14Z [web]     at nextResolve (node:internal/modules/esm/hooks:868:28)
+2026-01-24T21:08:14Z [web]     at resolveBase (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769288894028:2:3744)
+2026-01-24T21:08:14Z [web]     at async resolveDirectory (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769288894028:2:4237)
+2026-01-24T21:08:14Z [web]     at async resolve (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769288894028:2:5355)
+2026-01-24T21:08:14Z [web]     at async nextResolve (node:internal/modules/esm/hooks:868:22)
+2026-01-24T21:08:14Z [web]     at async Hooks.resolve (node:internal/modules/esm/hooks:306:24)
+2026-01-24T21:08:14Z [web]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
+2026-01-24T21:08:14Z [web]   code: 'ERR_MODULE_NOT_FOUND',
+2026-01-24T21:08:14Z [web]   url: 'file:///home/user/shared/routes'
+2026-01-24T21:08:14Z [web] }
+2026-01-24T21:08:14Z [web] 
+2026-01-24T21:08:14Z [web] Node.js v20.18.1
+2026-01-24T21:08:14Z [web] 
+2026-01-24T21:08:14Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T21:11:30Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:11:30Z [web] Waiting for your web server to start serving
+2026-01-24T21:11:31Z [web] 
+2026-01-24T21:11:31Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:11:31Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T21:11:31Z [web] 
+2026-01-24T21:11:31Z [web] Error: 
+2026-01-24T21:11:31Z [web] node:internal/modules/run_main:128
+2026-01-24T21:11:31Z [web]     triggerUncaughtException(
+2026-01-24T21:11:31Z [web]     ^
+2026-01-24T21:11:31Z [web] 
+2026-01-24T21:11:31Z [web] Error: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/DexAggregator/server/config' imported from /home/user/DexAggregator/server/index.ts
+2026-01-24T21:11:31Z [web]     at finalizeResolution (node:internal/modules/esm/resolve:265:11)
+2026-01-24T21:11:31Z [web]     at moduleResolve (node:internal/modules/esm/resolve:933:10)
+2026-01-24T21:11:31Z [web]     at defaultResolve (node:internal/modules/esm/resolve:1169:11)
+2026-01-24T21:11:31Z [web]     at nextResolve (node:internal/modules/esm/hooks:868:28)
+2026-01-24T21:11:31Z [web]     at resolveBase (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769289091573:2:3744)
+2026-01-24T21:11:31Z [web]     at async resolveDirectory (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769289091573:2:4237)
+2026-01-24T21:11:31Z [web]     at async resolve (file:///home/user/DexAggregator/node_modules/tsx/dist/esm/index.mjs?1769289091573:2:5355)
+2026-01-24T21:11:31Z [web]     at async nextResolve (node:internal/modules/esm/hooks:868:22)
+2026-01-24T21:11:31Z [web]     at async Hooks.resolve (node:internal/modules/esm/hooks:306:24)
+2026-01-24T21:11:31Z [web]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
+2026-01-24T21:11:31Z [web]   code: 'ERR_MODULE_NOT_FOUND',
+2026-01-24T21:11:31Z [web]   url: 'file:///home/user/DexAggregator/server/config'
+2026-01-24T21:11:31Z [web] }
+2026-01-24T21:11:31Z [web] 
+2026-01-24T21:11:31Z [web] Node.js v20.18.1
+2026-01-24T21:11:31Z [web] 
+2026-01-24T21:11:31Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T21:33:14Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:33:14Z [web] Waiting for your web server to start serving
+2026-01-24T21:33:14Z [web] 
+2026-01-24T21:33:14Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:33:14Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T21:33:14Z [web] 
+2026-01-24T21:33:16Z [web] Error: INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:33:16Z [web] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:33:16Z [web] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:33:16Z [web] 
+2026-01-24T21:33:16Z [web] Starting pool discovery...
+2026-01-24T21:33:16Z [web] Error: node:events:496
+2026-01-24T21:33:16Z [web]       throw er; // Unhandled 'error' event
+2026-01-24T21:33:16Z [web]       ^
+2026-01-24T21:33:16Z [web] 
+2026-01-24T21:33:16Z [web] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T21:33:16Z [web]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T21:33:16Z [web]     at listenInCluster (node:net:1965:12)
+2026-01-24T21:33:16Z [web]     at Server.listen (node:net:2067:7)
+2026-01-24T21:33:16Z [web]     at <anonymous> (/home/user/DexAggregator/server/index.ts:52:8)
+2026-01-24T21:33:16Z [web]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T21:33:16Z [web]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T21:33:16Z [web]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T21:33:16Z [web] Emitted 'error' event on Server instance at:
+2026-01-24T21:33:16Z [web]     at emitErrorNT (node:net:1944:8)
+2026-01-24T21:33:16Z [web]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T21:33:16Z [web]   code: 'EADDRINUSE',
+2026-01-24T21:33:16Z [web]   errno: -98,
+2026-01-24T21:33:16Z [web]   syscall: 'listen',
+2026-01-24T21:33:16Z [web]   address: '::',
+2026-01-24T21:33:16Z [web]   port: 3001
+2026-01-24T21:33:16Z [web] }
+2026-01-24T21:33:16Z [web] 
+2026-01-24T21:33:16Z [web] Node.js v20.18.1
+2026-01-24T21:33:16Z [web] 
+2026-01-24T21:33:16Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T21:34:57Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:34:57Z [web] Waiting for your web server to start serving
+2026-01-24T21:34:57Z [web] 
+2026-01-24T21:34:57Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:34:57Z [web] > NODE_ENV=development tsx server/index.ts --port 9002 --host 0.0.0.0
+2026-01-24T21:34:57Z [web] 
+2026-01-24T21:34:58Z [web] Error: INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:34:58Z [web] 
+2026-01-24T21:34:58Z [web] Error: ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:34:58Z [web] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:34:58Z [web] 
+2026-01-24T21:34:58Z [web] Starting pool discovery...
+2026-01-24T21:34:58Z [web] Error: node:events:496
+2026-01-24T21:34:58Z [web]       throw er; // Unhandled 'error' event
+2026-01-24T21:34:58Z [web]       ^
+2026-01-24T21:34:58Z [web] 
+2026-01-24T21:34:58Z [web] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T21:34:58Z [web]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T21:34:58Z [web]     at listenInCluster (node:net:1965:12)
+2026-01-24T21:34:58Z [web]     at Server.listen (node:net:2067:7)
+2026-01-24T21:34:58Z [web]     at <anonymous> (/home/user/DexAggregator/server/index.ts:52:8)
+2026-01-24T21:34:58Z [web]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T21:34:58Z [web]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T21:34:58Z [web]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T21:34:58Z [web] Emitted 'error' event on Server instance at:
+2026-01-24T21:34:58Z [web]     at emitErrorNT (node:net:1944:8)
+2026-01-24T21:34:58Z [web]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T21:34:58Z [web]   code: 'EADDRINUSE',
+2026-01-24T21:34:58Z [web]   errno: -98,
+2026-01-24T21:34:58Z [web]   syscall: 'listen',
+2026-01-24T21:34:58Z [web]   address: '::',
+2026-01-24T21:34:58Z [web]   port: 3001
+2026-01-24T21:34:58Z [web] }
+2026-01-24T21:34:58Z [web] 
+2026-01-24T21:34:58Z [web] Node.js v20.18.1
+2026-01-24T21:34:58Z [web] 
+2026-01-24T21:34:58Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T21:37:37Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:37:37Z [web] Waiting for your web server to start serving
+2026-01-24T21:37:37Z [web] 
+2026-01-24T21:37:37Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:37:37Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T21:37:37Z [web] 
+2026-01-24T21:37:38Z [web] [dev:client] 
+2026-01-24T21:37:38Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T21:37:38Z [web] [dev:client] > vite
+2026-01-24T21:37:38Z [web] [dev:client] 
+2026-01-24T21:37:38Z [web] [dev:server] 
+2026-01-24T21:37:38Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T21:37:38Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T21:37:38Z [web] [dev:server] 
+2026-01-24T21:37:38Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T21:37:39Z [web] [dev:client] Port 5173 is in use, trying another one...
+2026-01-24T21:37:39Z [web] [dev:client] 
+2026-01-24T21:37:39Z [web] [dev:client]   VITE v7.3.0  ready in 856 ms
+2026-01-24T21:37:39Z [web] [dev:client] 
+2026-01-24T21:37:39Z [web] [dev:client]   ➜  Local:   http://localhost:5174/
+2026-01-24T21:37:39Z [web] [dev:client]   ➜  Network: use --host to expose
+2026-01-24T21:37:40Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:37:40Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:37:40Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:37:40Z [web] [dev:server] Starting pool discovery...
+2026-01-24T21:37:40Z [web] [dev:server] node:events:496
+2026-01-24T21:37:40Z [web] [dev:server]       throw er; // Unhandled 'error' event
+2026-01-24T21:37:40Z [web] [dev:server]       ^
+2026-01-24T21:37:40Z [web] [dev:server] 
+2026-01-24T21:37:40Z [web] [dev:server] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T21:37:40Z [web] [dev:server]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T21:37:40Z [web] [dev:server]     at listenInCluster (node:net:1965:12)
+2026-01-24T21:37:40Z [web] [dev:server]     at Server.listen (node:net:2067:7)
+2026-01-24T21:37:40Z [web] [dev:server]     at <anonymous> (/home/user/DexAggregator/server/index.ts:52:8)
+2026-01-24T21:37:40Z [web] [dev:server]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T21:37:40Z [web] [dev:server]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T21:37:40Z [web] [dev:server]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T21:37:40Z [web] [dev:server] Emitted 'error' event on Server instance at:
+2026-01-24T21:37:40Z [web] [dev:server]     at emitErrorNT (node:net:1944:8)
+2026-01-24T21:37:40Z [web] [dev:server]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T21:37:40Z [web] [dev:server]   code: 'EADDRINUSE',
+2026-01-24T21:37:40Z [web] [dev:server]   errno: -98,
+2026-01-24T21:37:40Z [web] [dev:server]   syscall: 'listen',
+2026-01-24T21:37:40Z [web] [dev:server]   address: '::',
+2026-01-24T21:37:40Z [web] [dev:server]   port: 3001
+2026-01-24T21:37:40Z [web] [dev:server] }
+2026-01-24T21:37:40Z [web] [dev:server] 
+2026-01-24T21:37:40Z [web] [dev:server] Node.js v20.18.1
+2026-01-24T21:37:40Z [web] [dev:server] npm run dev:server exited with code 1
+2026-01-24T21:37:43Z [web] [dev:client] 9:37:43 PM [vite] (client) Pre-transform error: Failed to resolve import "./components/page" from "client/src/App.tsx". Does the file exist?
+2026-01-24T21:37:43Z [web] [dev:client]   Plugin: vite:import-analysis
+2026-01-24T21:37:43Z [web] [dev:client]   File: /home/user/DexAggregator/client/src/App.tsx:2:21
+2026-01-24T21:37:43Z [web] [dev:client]   16 |  }
+2026-01-24T21:37:43Z [web] [dev:client]   17 |  import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+2026-01-24T21:37:43Z [web] [dev:client]   18 |  import { Page } from "./components/page";
+2026-01-24T21:37:43Z [web] [dev:client]      |                        ^
+2026-01-24T21:37:43Z [web] [dev:client]   19 |  import { routes } from "./routes";
+2026-01-24T21:37:43Z [web] [dev:client]   20 |  const queryClient = new QueryClient();
+2026-01-24T21:56:04Z [web] [dev:client] 9:56:04 PM [vite] (client) page reload src/App.tsx
+2026-01-24T21:57:39Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:57:39Z [web] Waiting for your web server to start serving
+2026-01-24T21:57:39Z [web] [dev:client] npm run dev:client exited with code SIGTERM
+2026-01-24T21:57:39Z [web] 
+2026-01-24T21:57:39Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:57:39Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T21:57:39Z [web] 
+2026-01-24T21:57:40Z [web] [dev:client] 
+2026-01-24T21:57:40Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T21:57:40Z [web] [dev:client] > vite
+2026-01-24T21:57:40Z [web] [dev:client] 
+2026-01-24T21:57:40Z [web] [dev:server] 
+2026-01-24T21:57:40Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T21:57:40Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T21:57:40Z [web] [dev:server] 
+2026-01-24T21:57:40Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T21:57:41Z [web] [dev:client] Port 5173 is in use, trying another one...
+2026-01-24T21:57:41Z [web] [dev:client] 
+2026-01-24T21:57:41Z [web] [dev:client]   VITE v7.3.0  ready in 1141 ms
+2026-01-24T21:57:41Z [web] [dev:client] 
+2026-01-24T21:57:41Z [web] [dev:client]   ➜  Local:   http://localhost:5174/
+2026-01-24T21:57:41Z [web] [dev:client]   ➜  Network: use --host to expose
+2026-01-24T21:57:43Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:57:43Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:57:43Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:57:43Z [web] [dev:server] /home/user/DexAggregator/node_modules/ethers/src.ts/providers/provider-jsonrpc.ts:1249
+2026-01-24T21:57:43Z [web] [dev:server]             this.#connect = url.clone();
+2026-01-24T21:57:43Z [web] [dev:server]                                 ^
+2026-01-24T21:57:43Z [web] [dev:server] 
+2026-01-24T21:57:43Z [web] [dev:server] 
+2026-01-24T21:57:43Z [web] [dev:server] TypeError: url.clone is not a function
+2026-01-24T21:57:43Z [web] [dev:server]     at new JsonRpcProvider (/home/user/DexAggregator/node_modules/ethers/src.ts/providers/provider-jsonrpc.ts:1249:33)
+2026-01-24T21:57:43Z [web] [dev:server]     at new EthersAdapter (/home/user/DexAggregator/server/infrastructure/adapters/EthersAdapter.ts:28:33)
+2026-01-24T21:57:43Z [web] [dev:server]     at <anonymous> (/home/user/DexAggregator/server/index.ts:51:23)
+2026-01-24T21:57:43Z [web] [dev:server]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T21:57:43Z [web] [dev:server]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T21:57:43Z [web] [dev:server]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T21:57:43Z [web] [dev:server] 
+2026-01-24T21:57:43Z [web] [dev:server] Node.js v20.18.1
+2026-01-24T21:57:43Z [web] [dev:server] npm run dev:server exited with code 1
+2026-01-24T21:58:39Z [web] <Firebase Studio> Starting preview...
+2026-01-24T21:58:39Z [web] Waiting for your web server to start serving
+2026-01-24T21:58:39Z [web] [dev:client] npm run dev:client exited with code SIGTERM
+2026-01-24T21:58:39Z [web] 
+2026-01-24T21:58:39Z [web] > rest-express@1.0.0 dev
+2026-01-24T21:58:39Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T21:58:39Z [web] 
+2026-01-24T21:58:40Z [web] [dev:client] 
+2026-01-24T21:58:40Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T21:58:40Z [web] [dev:client] > vite
+2026-01-24T21:58:40Z [web] [dev:client] 
+2026-01-24T21:58:40Z [web] [dev:server] 
+2026-01-24T21:58:40Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T21:58:40Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T21:58:40Z [web] [dev:server] 
+2026-01-24T21:58:40Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T21:58:40Z [web] [dev:client] Port 5173 is in use, trying another one...
+2026-01-24T21:58:41Z [web] [dev:client] 
+2026-01-24T21:58:41Z [web] [dev:client]   VITE v7.3.0  ready in 700 ms
+2026-01-24T21:58:41Z [web] [dev:client] 
+2026-01-24T21:58:41Z [web] [dev:client]   ➜  Local:   http://localhost:5174/
+2026-01-24T21:58:41Z [web] [dev:client]   ➜  Network: use --host to expose
+2026-01-24T21:58:42Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:58:42Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:58:42Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T21:58:42Z [web] [dev:server] /home/user/DexAggregator/node_modules/ethers/src.ts/providers/provider-jsonrpc.ts:1249
+2026-01-24T21:58:42Z [web] [dev:server]             this.#connect = url.clone();
+2026-01-24T21:58:42Z [web] [dev:server]                                 ^
+2026-01-24T21:58:42Z [web] [dev:server] 
+2026-01-24T21:58:42Z [web] [dev:server] 
+2026-01-24T21:58:42Z [web] [dev:server] TypeError: url.clone is not a function
+2026-01-24T21:58:42Z [web] [dev:server]     at new JsonRpcProvider (/home/user/DexAggregator/node_modules/ethers/src.ts/providers/provider-jsonrpc.ts:1249:33)
+2026-01-24T21:58:42Z [web] [dev:server]     at new EthersAdapter (/home/user/DexAggregator/server/infrastructure/adapters/EthersAdapter.ts:28:33)
+2026-01-24T21:58:42Z [web] [dev:server]     at <anonymous> (/home/user/DexAggregator/server/index.ts:51:23)
+2026-01-24T21:58:42Z [web] [dev:server]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T21:58:42Z [web] [dev:server]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T21:58:42Z [web] [dev:server]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T21:58:42Z [web] [dev:server] 
+2026-01-24T21:58:42Z [web] [dev:server] Node.js v20.18.1
+2026-01-24T21:58:42Z [web] [dev:server] npm run dev:server exited with code 1
+2026-01-24T22:04:48Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:04:48Z [web] Waiting for your web server to start serving
+2026-01-24T22:04:48Z [web] [dev:client] npm run dev:client exited with code SIGTERM
+2026-01-24T22:04:48Z [web] 
+2026-01-24T22:04:48Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:04:48Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T22:04:48Z [web] 
+2026-01-24T22:04:49Z [web] [dev:server] 
+2026-01-24T22:04:49Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T22:04:49Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:04:49Z [web] [dev:server] 
+2026-01-24T22:04:49Z [web] [dev:client] 
+2026-01-24T22:04:49Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T22:04:49Z [web] [dev:client] > vite
+2026-01-24T22:04:49Z [web] [dev:client] 
+2026-01-24T22:04:49Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:04:50Z [web] [dev:client] 
+2026-01-24T22:04:50Z [web] [dev:client]   VITE v7.3.0  ready in 697 ms
+2026-01-24T22:04:50Z [web] [dev:client] 
+2026-01-24T22:04:50Z [web] [dev:client]   ➜  Local:   http://localhost:5173/
+2026-01-24T22:04:50Z [web] [dev:client]   ➜  Network: use --host to expose
+2026-01-24T22:04:51Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:04:51Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:04:51Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:04:52Z [web] [dev:server] Controller: Loading initial token and pool data...
+2026-01-24T22:04:52Z [web] [dev:server] Starting pool discovery...
+2026-01-24T22:04:52Z [web] [dev:server] Server is running on port 3001
+2026-01-24T22:04:52Z [web] [dev:server] Discovering pools for chain ID: 1 with 3 tokens...
+2026-01-24T22:04:52Z [web] [dev:server] Controller: Initial data loaded.
+2026-01-24T22:04:52Z [web] [dev:server] Found 3 new pools for chain ID: 1. Saving to pools_ethereum.json...
+2026-01-24T22:04:52Z [web] [dev:server] Discovering pools for chain ID: 137 with 3 tokens...
+2026-01-24T22:04:52Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:04:52Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:04:52Z [web] [dev:server] Found 1 new pools for chain ID: 137. Saving to pools_polygon.json...
+2026-01-24T22:04:52Z [web] [dev:server] Pool discovery finished.
+2026-01-24T22:04:52Z [web] [dev:server] Initial pool discovery complete.
+2026-01-24T22:09:19Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:09:19Z [web] Waiting for your web server to start serving
+2026-01-24T22:09:19Z [web] [dev:client] npm run dev:client exited with code SIGTERM
+2026-01-24T22:09:19Z [web] [dev:server] npm run dev:server exited with code SIGTERM
+2026-01-24T22:09:19Z [web] 
+2026-01-24T22:09:19Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:09:19Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T22:09:19Z [web] 
+2026-01-24T22:09:20Z [web] [dev:server] 
+2026-01-24T22:09:20Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T22:09:20Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:09:20Z [web] [dev:server] 
+2026-01-24T22:09:20Z [web] [dev:client] 
+2026-01-24T22:09:20Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T22:09:20Z [web] [dev:client] > vite
+2026-01-24T22:09:20Z [web] [dev:client] 
+2026-01-24T22:09:20Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:09:21Z [web] [dev:client] 
+2026-01-24T22:09:21Z [web] [dev:client]   VITE v7.3.0  ready in 787 ms
+2026-01-24T22:09:21Z [web] [dev:client] 
+2026-01-24T22:09:21Z [web] [dev:client]   ➜  Local:   http://localhost:5173/
+2026-01-24T22:09:21Z [web] [dev:client]   ➜  Network: use --host to expose
+2026-01-24T22:09:22Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:09:22Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:09:22Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:09:22Z [web] [dev:server] Controller: Loading initial token and pool data...
+2026-01-24T22:09:22Z [web] [dev:server] Starting pool discovery...
+2026-01-24T22:09:22Z [web] [dev:server] Server is running on port 3001
+2026-01-24T22:09:22Z [web] [dev:server] Discovering pools for chain ID: 1 with 3 tokens...
+2026-01-24T22:09:22Z [web] [dev:server] Controller: Initial data loaded.
+2026-01-24T22:09:24Z [web] [dev:server] Found 12 new pools for chain ID: 1. Saving to pools_ethereum.json...
+2026-01-24T22:09:24Z [web] [dev:server] Discovering pools for chain ID: 137 with 3 tokens...
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:09:24Z [web] [dev:server] Found 4 new pools for chain ID: 137. Saving to pools_polygon.json...
+2026-01-24T22:09:24Z [web] [dev:server] Pool discovery finished.
+2026-01-24T22:09:24Z [web] [dev:server] Initial pool discovery complete.
+2026-01-24T22:12:39Z [web] [dev:client] 10:12:39 PM [vite] vite.config.ts changed, restarting server...
+2026-01-24T22:12:40Z [web] [dev:client] 10:12:40 PM [vite] server restarted.
+2026-01-24T22:12:40Z [web] [dev:client] 
+2026-01-24T22:12:40Z [web] [dev:client]   ➜  Local:   http://localhost:5173/
+2026-01-24T22:12:40Z [web] [dev:client]   ➜  Network: http://10.88.0.3:5173/
+2026-01-24T22:32:27Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:32:27Z [web] Waiting for your web server to start serving
+2026-01-24T22:32:27Z [web] 
+2026-01-24T22:32:27Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:32:27Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T22:32:27Z [web] 
+2026-01-24T22:32:28Z [web] [dev:client] 
+2026-01-24T22:32:28Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T22:32:28Z [web] [dev:client] > vite
+2026-01-24T22:32:28Z [web] [dev:client] 
+2026-01-24T22:32:28Z [web] [dev:server] 
+2026-01-24T22:32:28Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T22:32:28Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:32:28Z [web] [dev:server] 
+2026-01-24T22:32:28Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:32:28Z [web] [dev:client] 
+2026-01-24T22:32:28Z [web] [dev:client]   VITE v7.3.0  ready in 719 ms
+2026-01-24T22:32:28Z [web] [dev:client] 
+2026-01-24T22:32:28Z [web] [dev:client]   ➜  Local:   http://localhost:5173/
+2026-01-24T22:32:28Z [web] [dev:client]   ➜  Network: http://10.88.0.3:5173/
+2026-01-24T22:32:30Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:32:30Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:32:30Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:32:30Z [web] [dev:server] Controller: Loading initial token and pool data...
+2026-01-24T22:32:30Z [web] [dev:server] Starting pool discovery...
+2026-01-24T22:32:30Z [web] [dev:server] Server is running on port 3001
+2026-01-24T22:32:30Z [web] [dev:server] Discovering pools for chain ID: 1 with 3 tokens...
+2026-01-24T22:32:30Z [web] [dev:server] No new pools found for chain ID: 1.
+2026-01-24T22:32:30Z [web] [dev:server] Discovering pools for chain ID: 137 with 3 tokens...
+2026-01-24T22:32:30Z [web] [dev:server] Controller: Initial data loaded.
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:32:30Z [web] [dev:server] No new pools found for chain ID: 137.
+2026-01-24T22:32:30Z [web] [dev:server] Pool discovery finished.
+2026-01-24T22:32:30Z [web] [dev:server] Initial pool discovery complete.
+2026-01-24T22:33:59Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:33:59Z [web] Waiting for your web server to start serving
+2026-01-24T22:34:00Z [web] [dev:server] npm run dev:server exited with code 143
+2026-01-24T22:34:00Z [web] [dev:client] npm run dev:client exited with code 143
+2026-01-24T22:34:00Z [web] 
+2026-01-24T22:34:00Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:34:00Z [web] > concurrently "npm:dev:client" "npm:dev:server" --port 9002 --host 0.0.0.0
+2026-01-24T22:34:00Z [web] 
+2026-01-24T22:34:01Z [web] [dev:client] 
+2026-01-24T22:34:01Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T22:34:01Z [web] [dev:client] > vite
+2026-01-24T22:34:01Z [web] [dev:client] 
+2026-01-24T22:34:01Z [web] [dev:server] 
+2026-01-24T22:34:01Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T22:34:01Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:34:01Z [web] [dev:server] 
+2026-01-24T22:34:01Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:34:01Z [web] [dev:client] 
+2026-01-24T22:34:01Z [web] [dev:client]   VITE v7.3.0  ready in 683 ms
+2026-01-24T22:34:01Z [web] [dev:client] 
+2026-01-24T22:34:01Z [web] [dev:client]   ➜  Local:   http://localhost:5173/
+2026-01-24T22:34:01Z [web] [dev:client]   ➜  Network: http://10.88.0.3:5173/
+2026-01-24T22:34:03Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:34:03Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:34:03Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:34:03Z [web] [dev:server] Controller: Loading initial token and pool data...
+2026-01-24T22:34:03Z [web] [dev:server] Starting pool discovery...
+2026-01-24T22:34:03Z [web] [dev:server] Server is running on port 3001
+2026-01-24T22:34:03Z [web] [dev:server] Discovering pools for chain ID: 1 with 3 tokens...
+2026-01-24T22:34:03Z [web] [dev:server] No new pools found for chain ID: 1.
+2026-01-24T22:34:03Z [web] [dev:server] Discovering pools for chain ID: 137 with 3 tokens...
+2026-01-24T22:34:03Z [web] [dev:server] Controller: Initial data loaded.
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:34:03Z [web] [dev:server] No new pools found for chain ID: 137.
+2026-01-24T22:34:03Z [web] [dev:server] Pool discovery finished.
+2026-01-24T22:34:03Z [web] [dev:server] Initial pool discovery complete.
+2026-01-24T22:35:33Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:35:33Z [web] Waiting for your web server to start serving
+2026-01-24T22:35:33Z [web] 
+2026-01-24T22:35:33Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:35:33Z [web] > concurrently "npm:dev:client" "npm:dev:server"
+2026-01-24T22:35:33Z [web] 
+2026-01-24T22:35:34Z [web] [dev:client] 
+2026-01-24T22:35:34Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T22:35:34Z [web] [dev:client] > vite
+2026-01-24T22:35:34Z [web] [dev:client] 
+2026-01-24T22:35:34Z [web] [dev:server] 
+2026-01-24T22:35:34Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T22:35:34Z [web] [dev:server] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:35:34Z [web] [dev:server] 
+2026-01-24T22:35:34Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:35:34Z [web] [dev:client] 
+2026-01-24T22:35:34Z [web] [dev:client]   VITE v7.3.0  ready in 667 ms
+2026-01-24T22:35:34Z [web] [dev:client] 
+2026-01-24T22:35:34Z [web] [dev:client]   ➜  Local:   http://localhost:5173/
+2026-01-24T22:35:34Z [web] [dev:client]   ➜  Network: http://10.88.0.3:5173/
+2026-01-24T22:35:37Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:35:37Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:35:37Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:35:37Z [web] [dev:server] Controller: Loading initial token and pool data...
+2026-01-24T22:35:37Z [web] [dev:server] Starting pool discovery...
+2026-01-24T22:35:37Z [web] [dev:server] Server is running on port 3001
+2026-01-24T22:35:37Z [web] [dev:server] Discovering pools for chain ID: 1 with 3 tokens...
+2026-01-24T22:35:37Z [web] [dev:server] No new pools found for chain ID: 1.
+2026-01-24T22:35:37Z [web] [dev:server] Discovering pools for chain ID: 137 with 3 tokens...
+2026-01-24T22:35:37Z [web] [dev:server] Controller: Initial data loaded.
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for WMATIC-USDC on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 100: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 500: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 3000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] Error finding pool for USDC-USDT on chain 137 with fee 10000: bad address checksum (argument="address", value="0x2791Bca1f2de4661ed88A30C99A7a9449Aa84174", code=INVALID_ARGUMENT, version=6.16.0)
+2026-01-24T22:35:37Z [web] [dev:server] No new pools found for chain ID: 137.
+2026-01-24T22:35:37Z [web] [dev:server] Pool discovery finished.
+2026-01-24T22:35:37Z [web] [dev:server] Initial pool discovery complete.
+2026-01-24T22:37:08Z [web] [dev:client] 10:37:08 PM [vite] vite.config.ts changed, restarting server...
+2026-01-24T22:37:08Z [web] [dev:client] Port 3001 is in use, trying another one...
+2026-01-24T22:37:08Z [web] [dev:client] 10:37:08 PM [vite] server restarted.
+2026-01-24T22:37:08Z [web] [dev:client] 
+2026-01-24T22:37:08Z [web] [dev:client]   ➜  Local:   http://localhost:3002/
+2026-01-24T22:37:08Z [web] [dev:client]   ➜  Network: http://10.88.0.3:3002/
+2026-01-24T22:39:26Z [web] [dev:client] npm run dev:client exited with code SIGTERM
+2026-01-24T22:39:26Z [web] [dev:server] npm run dev:server exited with code 143
+2026-01-24T22:39:26Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T22:44:05Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:44:05Z [web] Waiting for your web server to start serving
+2026-01-24T22:44:06Z [web] 
+2026-01-24T22:44:06Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:44:06Z [web] > concurrently "npm:dev:client" "npm:dev:server"
+2026-01-24T22:44:06Z [web] 
+2026-01-24T22:44:06Z [web] [dev:client] 
+2026-01-24T22:44:06Z [web] [dev:client] > rest-express@1.0.0 dev:client
+2026-01-24T22:44:06Z [web] [dev:client] > PORT=3001 vite
+2026-01-24T22:44:06Z [web] [dev:client] 
+2026-01-24T22:44:06Z [web] [dev:server] 
+2026-01-24T22:44:06Z [web] [dev:server] > rest-express@1.0.0 dev:server
+2026-01-24T22:44:06Z [web] [dev:server] > PORT=3001 NODE_ENV=development tsx server/index.ts
+2026-01-24T22:44:06Z [web] [dev:server] 
+2026-01-24T22:44:06Z [web] [dev:client] You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:44:07Z [web] [dev:client] 
+2026-01-24T22:44:07Z [web] [dev:client]   VITE v7.3.0  ready in 607 ms
+2026-01-24T22:44:07Z [web] [dev:client] 
+2026-01-24T22:44:07Z [web] [dev:client]   ➜  Local:   http://localhost:3001/
+2026-01-24T22:44:07Z [web] [dev:client]   ➜  Network: http://10.88.0.3:3001/
+2026-01-24T22:44:08Z [web] [dev:server] INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:44:08Z [web] [dev:server] ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:44:08Z [web] [dev:server] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:44:08Z [web] [dev:server] Controller: Loading initial token and pool data...
+2026-01-24T22:44:08Z [web] [dev:server] Starting pool discovery...
+2026-01-24T22:44:08Z [web] [dev:server] node:events:496
+2026-01-24T22:44:08Z [web] [dev:server]       throw er; // Unhandled 'error' event
+2026-01-24T22:44:08Z [web] [dev:server]       ^
+2026-01-24T22:44:08Z [web] [dev:server] 
+2026-01-24T22:44:08Z [web] [dev:server] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T22:44:08Z [web] [dev:server]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T22:44:08Z [web] [dev:server]     at listenInCluster (node:net:1965:12)
+2026-01-24T22:44:08Z [web] [dev:server]     at Server.listen (node:net:2067:7)
+2026-01-24T22:44:08Z [web] [dev:server]     at <anonymous> (/home/user/DexAggregator/server/index.ts:84:8)
+2026-01-24T22:44:08Z [web] [dev:server]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T22:44:08Z [web] [dev:server]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T22:44:08Z [web] [dev:server]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T22:44:08Z [web] [dev:server] Emitted 'error' event on Server instance at:
+2026-01-24T22:44:08Z [web] [dev:server]     at emitErrorNT (node:net:1944:8)
+2026-01-24T22:44:08Z [web] [dev:server]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T22:44:08Z [web] [dev:server]   code: 'EADDRINUSE',
+2026-01-24T22:44:08Z [web] [dev:server]   errno: -98,
+2026-01-24T22:44:08Z [web] [dev:server]   syscall: 'listen',
+2026-01-24T22:44:08Z [web] [dev:server]   address: '::',
+2026-01-24T22:44:08Z [web] [dev:server]   port: 3001
+2026-01-24T22:44:08Z [web] [dev:server] }
+2026-01-24T22:44:08Z [web] [dev:server] 
+2026-01-24T22:44:08Z [web] [dev:server] Node.js v20.18.1
+2026-01-24T22:44:09Z [web] [dev:server] npm run dev:server exited with code 1
+2026-01-24T22:45:35Z [web] [dev:client] 10:45:35 PM [vite] vite.config.ts changed, restarting server...
+2026-01-24T22:45:35Z [web] [dev:client] ✘ [ERROR] Expected string in JSON but found "."
+2026-01-24T22:45:35Z [web] [dev:client] 
+2026-01-24T22:45:35Z [web] [dev:client]     package.json:100:25:
+2026-01-24T22:45:35Z [web] [dev:client]       100 │     "esbuild": "^0.25.0",.
+2026-01-24T22:45:35Z [web] [dev:client]           ╵                          ^
+2026-01-24T22:45:35Z [web] [dev:client] 
+2026-01-24T22:45:35Z [web] [dev:client] failed to load config from /home/user/DexAggregator/vite.config.ts
+2026-01-24T22:45:35Z [web] [dev:client] 10:45:35 PM [vite] Build failed with 1 error:
+2026-01-24T22:45:35Z [web] [dev:client] package.json:100:25: ERROR: Expected string in JSON but found "."
+2026-01-24T22:45:35Z [web] [dev:client] 10:45:35 PM [vite] server restart failed
+2026-01-24T22:47:24Z [web] [dev:client] 10:47:24 PM [vite] vite.config.ts changed, restarting server...
+2026-01-24T22:47:24Z [web] [dev:client] ✘ [ERROR] Expected string in JSON but found "."
+2026-01-24T22:47:24Z [web] [dev:client] 
+2026-01-24T22:47:24Z [web] [dev:client]     package.json:100:25:
+2026-01-24T22:47:24Z [web] [dev:client]       100 │     "esbuild": "^0.25.0",.
+2026-01-24T22:47:24Z [web] [dev:client]           ╵                          ^
+2026-01-24T22:47:24Z [web] [dev:client] 
+2026-01-24T22:47:24Z [web] [dev:client] failed to load config from /home/user/DexAggregator/vite.config.ts
+2026-01-24T22:47:24Z [web] [dev:client] 10:47:24 PM [vite] Build failed with 1 error:
+2026-01-24T22:47:24Z [web] [dev:client] package.json:100:25: ERROR: Expected string in JSON but found "."
+2026-01-24T22:47:24Z [web] [dev:client] 10:47:24 PM [vite] server restart failed
+2026-01-24T22:47:54Z [web] [dev:client] npm run dev:client exited with code SIGTERM
+2026-01-24T22:47:54Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T22:48:10Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:48:10Z [web] Waiting for your web server to start serving
+2026-01-24T22:48:10Z [web] Error: npm error code EJSONPARSE
+2026-01-24T22:48:10Z [web] 
+2026-01-24T22:48:10Z [web] Error: npm error JSON.parse Invalid package.json: JSONParseError: Expected double-quoted property name in JSON at position 3432 while parsing near "...esbuild\": \"^0.25.0\",.\n    \"postcss\": \"^8..."
+2026-01-24T22:48:10Z [web] npm error JSON.parse Failed to parse JSON data.
+2026-01-24T22:48:10Z [web] npm error JSON.parse Note: package.json must be actual JSON, not just JavaScript.
+2026-01-24T22:48:10Z [web] 
+2026-01-24T22:48:10Z [web] Error: npm error A complete log of this run can be found in: /home/user/.npm/_logs/2026-01-24T22_48_10_182Z-debug-0.log
+2026-01-24T22:48:10Z [web] 
+2026-01-24T22:48:10Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T22:51:57Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:51:57Z [web] Waiting for your web server to start serving
+2026-01-24T22:51:57Z [web] 
+2026-01-24T22:51:57Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:51:57Z [web] > npm run dev:server & npm run dev:client
+2026-01-24T22:51:57Z [web] 
+2026-01-24T22:51:57Z [web] 
+2026-01-24T22:51:57Z [web] > rest-express@1.0.0 dev:server
+2026-01-24T22:51:57Z [web] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:51:57Z [web] 
+2026-01-24T22:51:57Z [web] 
+2026-01-24T22:51:57Z [web] > rest-express@1.0.0 dev:client
+2026-01-24T22:51:57Z [web] > vite
+2026-01-24T22:51:57Z [web] 
+2026-01-24T22:51:58Z [web] Error: You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:51:58Z [web] 
+2026-01-24T22:51:58Z [web] Port 5173 is in use, trying another one...
+2026-01-24T22:51:58Z [web] 
+2026-01-24T22:51:58Z [web]   VITE v7.3.0  ready in 755 ms
+2026-01-24T22:51:58Z [web] 
+2026-01-24T22:51:58Z [web]   ➜  Local:   http://localhost:5174/
+2026-01-24T22:51:58Z [web]   ➜  Network: http://10.88.0.3:5174/
+2026-01-24T22:52:00Z [web] Error: INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:52:00Z [web] 
+2026-01-24T22:52:00Z [web] Error: ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:52:00Z [web] 
+2026-01-24T22:52:00Z [web] Error: POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:52:00Z [web] 
+2026-01-24T22:52:00Z [web] Controller: Loading initial token and pool data...
+2026-01-24T22:52:00Z [web] Starting pool discovery...
+2026-01-24T22:52:00Z [web] Error: node:events:496
+2026-01-24T22:52:00Z [web]       throw er; // Unhandled 'error' event
+2026-01-24T22:52:00Z [web]       ^
+2026-01-24T22:52:00Z [web] 
+2026-01-24T22:52:00Z [web] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T22:52:00Z [web]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T22:52:00Z [web]     at listenInCluster (node:net:1965:12)
+2026-01-24T22:52:00Z [web]     at Server.listen (node:net:2067:7)
+2026-01-24T22:52:00Z [web]     at <anonymous> (/home/user/DexAggregator/server/index.ts:84:8)
+2026-01-24T22:52:00Z [web]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T22:52:00Z [web]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T22:52:00Z [web]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T22:52:00Z [web] Emitted 'error' event on Server instance at:
+2026-01-24T22:52:00Z [web]     at emitErrorNT (node:net:1944:8)
+2026-01-24T22:52:00Z [web]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T22:52:00Z [web]   code: 'EADDRINUSE',
+2026-01-24T22:52:00Z [web]   errno: -98,
+2026-01-24T22:52:00Z [web]   syscall: 'listen',
+2026-01-24T22:52:00Z [web]   address: '::',
+2026-01-24T22:52:00Z [web]   port: 3001
+2026-01-24T22:52:00Z [web] }
+2026-01-24T22:52:00Z [web] 
+2026-01-24T22:52:00Z [web] Node.js v20.18.1
+2026-01-24T22:52:00Z [web] 
+2026-01-24T22:52:11Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:52:11Z [web] Waiting for your web server to start serving
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:12Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:52:12Z [web] > npm run dev:server & npm run dev:client
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:12Z [web] > rest-express@1.0.0 dev:client
+2026-01-24T22:52:12Z [web] > vite
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:12Z [web] > rest-express@1.0.0 dev:server
+2026-01-24T22:52:12Z [web] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:12Z [web] Error: You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:52:12Z [web] 
+2026-01-24T22:52:13Z [web] Port 5173 is in use, trying another one...
+2026-01-24T22:52:13Z [web] 
+2026-01-24T22:52:13Z [web]   VITE v7.3.0  ready in 673 ms
+2026-01-24T22:52:13Z [web] 
+2026-01-24T22:52:13Z [web]   ➜  Local:   http://localhost:5174/
+2026-01-24T22:52:13Z [web]   ➜  Network: http://10.88.0.3:5174/
+2026-01-24T22:52:14Z [web] Error: INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:52:14Z [web] 
+2026-01-24T22:52:14Z [web] Error: ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:52:14Z [web] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:52:14Z [web] 
+2026-01-24T22:52:14Z [web] Controller: Loading initial token and pool data...
+2026-01-24T22:52:14Z [web] Starting pool discovery...
+2026-01-24T22:52:14Z [web] Error: node:events:496
+2026-01-24T22:52:14Z [web]       throw er; // Unhandled 'error' event
+2026-01-24T22:52:14Z [web]       ^
+2026-01-24T22:52:14Z [web] 
+2026-01-24T22:52:14Z [web] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T22:52:14Z [web]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T22:52:14Z [web]     at listenInCluster (node:net:1965:12)
+2026-01-24T22:52:14Z [web]     at Server.listen (node:net:2067:7)
+2026-01-24T22:52:14Z [web]     at <anonymous> (/home/user/DexAggregator/server/index.ts:84:8)
+2026-01-24T22:52:14Z [web]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T22:52:14Z [web]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T22:52:14Z [web]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T22:52:14Z [web] Emitted 'error' event on Server instance at:
+2026-01-24T22:52:14Z [web]     at emitErrorNT (node:net:1944:8)
+2026-01-24T22:52:14Z [web]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T22:52:14Z [web]   code: 'EADDRINUSE',
+2026-01-24T22:52:14Z [web]   errno: -98,
+2026-01-24T22:52:14Z [web]   syscall: 'listen',
+2026-01-24T22:52:14Z [web]   address: '::',
+2026-01-24T22:52:14Z [web]   port: 3001
+2026-01-24T22:52:14Z [web] }
+2026-01-24T22:52:14Z [web] 
+2026-01-24T22:52:14Z [web] Node.js v20.18.1
+2026-01-24T22:52:14Z [web] 
+2026-01-24T22:54:04Z [web] <Firebase Studio> Starting preview...
+2026-01-24T22:54:04Z [web] Waiting for your web server to start serving
+2026-01-24T22:54:04Z [web] 
+2026-01-24T22:54:04Z [web] > rest-express@1.0.0 dev
+2026-01-24T22:54:04Z [web] > npm run dev:server & npm run dev:client
+2026-01-24T22:54:04Z [web] 
+2026-01-24T22:54:04Z [web] 
+2026-01-24T22:54:04Z [web] > rest-express@1.0.0 dev:client
+2026-01-24T22:54:04Z [web] > vite
+2026-01-24T22:54:04Z [web] 
+2026-01-24T22:54:04Z [web] 
+2026-01-24T22:54:04Z [web] > rest-express@1.0.0 dev:server
+2026-01-24T22:54:04Z [web] > NODE_ENV=development tsx server/index.ts
+2026-01-24T22:54:04Z [web] 
+2026-01-24T22:54:05Z [web] Error: You are using Node.js 20.18.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+2026-01-24T22:54:05Z [web] 
+2026-01-24T22:54:05Z [web] Port 5173 is in use, trying another one...
+2026-01-24T22:54:05Z [web] 
+2026-01-24T22:54:05Z [web]   VITE v7.3.0  ready in 664 ms
+2026-01-24T22:54:05Z [web] 
+2026-01-24T22:54:05Z [web]   ➜  Local:   http://localhost:5174/
+2026-01-24T22:54:05Z [web]   ➜  Network: http://10.88.0.3:5174/
+2026-01-24T22:54:07Z [web] Error: INFURA_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:54:07Z [web] 
+2026-01-24T22:54:07Z [web] Error: ALCHEMY_API_KEY not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:54:07Z [web] POLYGON_RPC_URL not found, using public RPC. This may result in rate-limiting.
+2026-01-24T22:54:07Z [web] 
+2026-01-24T22:54:07Z [web] Controller: Loading initial token and pool data...
+2026-01-24T22:54:07Z [web] Starting pool discovery...
+2026-01-24T22:54:07Z [web] Error: node:events:496
+2026-01-24T22:54:07Z [web]       throw er; // Unhandled 'error' event
+2026-01-24T22:54:07Z [web]       ^
+2026-01-24T22:54:07Z [web] 
+2026-01-24T22:54:07Z [web] Error: listen EADDRINUSE: address already in use :::3001
+2026-01-24T22:54:07Z [web]     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+2026-01-24T22:54:07Z [web]     at listenInCluster (node:net:1965:12)
+2026-01-24T22:54:07Z [web]     at Server.listen (node:net:2067:7)
+2026-01-24T22:54:07Z [web]     at <anonymous> (/home/user/DexAggregator/server/index.ts:84:8)
+2026-01-24T22:54:07Z [web]     at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2026-01-24T22:54:07Z [web]     at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2026-01-24T22:54:07Z [web]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2026-01-24T22:54:07Z [web] Emitted 'error' event on Server instance at:
+2026-01-24T22:54:07Z [web]     at emitErrorNT (node:net:1944:8)
+2026-01-24T22:54:07Z [web]     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2026-01-24T22:54:07Z [web]   code: 'EADDRINUSE',
+2026-01-24T22:54:07Z [web]   errno: -98,
+2026-01-24T22:54:07Z [web]   syscall: 'listen',
+2026-01-24T22:54:07Z [web]   address: '::',
+2026-01-24T22:54:07Z [web]   port: 3001
+2026-01-24T22:54:07Z [web] }
+2026-01-24T22:54:07Z [web] 
+2026-01-24T22:54:07Z [web] Node.js v20.18.1
+2026-01-24T22:54:07Z [web] 
+2026-01-24T23:01:17Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T23:01:40Z [web] <Firebase Studio> Starting preview...
+2026-01-24T23:01:40Z [web] Waiting for your web server to start serving
+2026-01-24T23:01:41Z [web] 
+2026-01-24T23:01:41Z [web] > rest-express@1.0.0 dev
+2026-01-24T23:01:41Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-24T23:01:41Z [web] 
+2026-01-24T23:02:56Z [web] <Firebase Studio> ✘ Preview failed to start
+2026-01-24T23:15:09Z [web] <Firebase Studio> Starting preview...
+2026-01-24T23:15:09Z [web] Waiting for your web server to start serving
+2026-01-24T23:15:10Z [web] 
+2026-01-24T23:15:10Z [web] > rest-express@1.0.0 dev
+2026-01-24T23:15:10Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-24T23:15:10Z [web] 
+2026-01-24T23:35:52Z [web] <Firebase Studio> Starting preview...
+2026-01-24T23:35:53Z [web] Waiting for your web server to start serving
+2026-01-24T23:35:53Z [web] 
+2026-01-24T23:35:53Z [web] > rest-express@1.0.0 dev
+2026-01-24T23:35:53Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-24T23:35:53Z [web] 
+2026-01-25T00:04:00Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:04:00Z [web] Waiting for your web server to start serving
+2026-01-25T00:04:00Z [web] 
+2026-01-25T00:04:00Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:04:00Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:04:00Z [web] 
+2026-01-25T00:05:18Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:05:18Z [web] Waiting for your web server to start serving
+2026-01-25T00:05:18Z [web] 
+2026-01-25T00:05:18Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:05:18Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:05:18Z [web] 
+2026-01-25T00:08:03Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:08:03Z [web] Waiting for your web server to start serving
+2026-01-25T00:08:03Z [web] 
+2026-01-25T00:08:03Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:08:03Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:08:03Z [web] 
+2026-01-25T00:18:05Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:18:05Z [web] Waiting for your web server to start serving
+2026-01-25T00:18:05Z [web] 
+2026-01-25T00:18:05Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:18:05Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:18:05Z [web] 
+2026-01-25T00:24:32Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:24:32Z [web] Waiting for your web server to start serving
+2026-01-25T00:24:32Z [web] 
+2026-01-25T00:24:32Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:24:32Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:24:32Z [web] 
+2026-01-25T00:26:55Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:26:55Z [web] Waiting for your web server to start serving
+2026-01-25T00:26:56Z [web] 
+2026-01-25T00:26:56Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:26:56Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:26:56Z [web] 
+2026-01-25T00:28:50Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:28:50Z [web] Waiting for your web server to start serving
+2026-01-25T00:28:50Z [web] 
+2026-01-25T00:28:50Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:28:50Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:28:50Z [web] 
+2026-01-25T00:39:03Z [web] <Firebase Studio> Starting preview...
+2026-01-25T00:39:03Z [web] Waiting for your web server to start serving
+2026-01-25T00:39:03Z [web] 
+2026-01-25T00:39:03Z [web] > rest-express@1.0.0 dev
+2026-01-25T00:39:03Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T00:39:03Z [web] 
+2026-01-25T01:27:20Z [web] <Firebase Studio> Starting preview...
+2026-01-25T01:27:20Z [web] Waiting for your web server to start serving
+2026-01-25T01:27:20Z [web] 
+2026-01-25T01:27:20Z [web] > rest-express@1.0.0 dev
+2026-01-25T01:27:20Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T01:27:20Z [web] 
+2026-01-25T01:29:57Z [web] <Firebase Studio> Starting preview...
+2026-01-25T01:29:57Z [web] Waiting for your web server to start serving
+2026-01-25T01:29:57Z [web] 
+2026-01-25T01:29:57Z [web] > rest-express@1.0.0 dev
+2026-01-25T01:29:57Z [web] > (npm run dev:server & npm run dev:client) &> dev.log
+2026-01-25T01:29:57Z [web] 

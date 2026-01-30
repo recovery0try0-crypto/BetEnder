@@ -112,7 +112,7 @@ process.on('SIGINT', () => {
 // Register the routes
 registerRoutes(app, priceViewerService, swapController);
 
-const port = process.env.PORT || 3002;
+const port = 3002;
 server.listen(port, () =>
   console.log(`Server is running on port ${port}`)
 );

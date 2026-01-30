@@ -125,7 +125,7 @@ export class EthersAdapter {
     const provider = this.getProvider(chainId);
     const multicallContract = new ethers.Contract(MULTICALL_ADDRESS, MULTICALL_ABI, provider);
 
-    // Construct calls for each pool (slot0 + liquidity)
+    // Construct calls for each pool (slot0 + liquidity + token0 + token1)
     const calls = [];
     for (const poolAddress of poolAddresses) {
       const poolIface = new ethers.Interface(POOL_ABI);
@@ -141,6 +141,18 @@ export class EthersAdapter {
         target: poolAddress,
         callData: poolIface.encodeFunctionData('liquidity', []),
       });
+
+      // token0 call
+      calls.push({
+        target: poolAddress,
+        callData: poolIface.encodeFunctionData('token0', []),
+      });
+
+      // token1 call
+      calls.push({
+        target: poolAddress,
+        callData: poolIface.encodeFunctionData('token1', []),
+      });
     }
 
     try {
@@ -155,15 +167,21 @@ export class EthersAdapter {
 
       for (let i = 0; i < poolAddresses.length; i++) {
         const poolAddress = poolAddresses[i];
-        const slot0Index = i * 2;
-        const liquidityIndex = i * 2 + 1;
+        const slot0Index = i * 4;
+        const liquidityIndex = i * 4 + 1;
+        const token0Index = i * 4 + 2;
+        const token1Index = i * 4 + 3;
 
         try {
           const slot0Data = returnData[slot0Index];
           const liquidityData = returnData[liquidityIndex];
+          const token0Data = returnData[token0Index];
+          const token1Data = returnData[token1Index];
 
           const slot0Decoded = poolIface.decodeFunctionResult('slot0', slot0Data) as any;
           const liquidityDecoded = poolIface.decodeFunctionResult('liquidity', liquidityData) as any;
+          const token0Decoded = poolIface.decodeFunctionResult('token0', token0Data) as any;
+          const token1Decoded = poolIface.decodeFunctionResult('token1', token1Data) as any;
 
           results.push({
             poolAddress,
@@ -173,6 +191,8 @@ export class EthersAdapter {
               sqrtPriceX96: BigInt(slot0Decoded.sqrtPriceX96.toString()),
               tick: slot0Decoded.tick,
               liquidity: BigInt(liquidityDecoded.toString()),
+              token0: token0Decoded,
+              token1: token1Decoded,
             },
           });
         } catch (error) {

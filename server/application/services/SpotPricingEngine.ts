@@ -52,8 +52,8 @@ class SpotPricingEngine {
     let maxLiquidity = 0n;
 
     for (const pool of pools) {
-      const otherToken = pool.token0 === tokenAddress ? pool.token1 : pool.token0;
-      if (chainStables.includes(otherToken) && pool.liquidity > maxLiquidity) {
+      const otherToken = pool.token0.toLowerCase() === tokenAddress.toLowerCase() ? pool.token1 : pool.token0;
+      if (chainStables.some(stable => stable.toLowerCase() === otherToken.toLowerCase()) && pool.liquidity > maxLiquidity) {
         maxLiquidity = pool.liquidity;
         bestPool = pool;
       }

@@ -1,6 +1,11 @@
 // Load .env file FIRST before any imports that use process.env
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.resolve(__dirname, '../.env');
+dotenv.config({ path: envPath });
 
 import express from 'express';
 import { registerRoutes } from './routes.ts';
@@ -14,11 +19,11 @@ import { priceViewerService } from './application/services/PriceViewerService.ts
 import { sharedStateCache } from './application/services/SharedStateCache.ts';
 import { SwapController } from './application/services/SwapController.ts';
 import { providersConfig } from './infrastructure/config/ProvidersConfig';
-import { rpcConfig } from './infrastructure/config/RpcConfig';
+import { getRpcConfig } from './infrastructure/config/RpcConfig';
 import { explorerConfig } from './infrastructure/config/ExplorerConfig';
 
 // Reinitialize config modules with loaded env vars
-rpcConfig.reinitialize();
+const rpcConfig = getRpcConfig();
 explorerConfig.reinitialize();
 providersConfig.reinitialize();
 

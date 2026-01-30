@@ -130,8 +130,8 @@ export class PoolScheduler {
               address: result.poolAddress,
               sqrtPriceX96: result.data.sqrtPriceX96,
               liquidity: result.data.liquidity,
-              token0: '',
-              token1: '',
+              token0: result.data.token0,
+              token1: result.data.token1,
               timestamp: Date.now(),
               // PHASE 6: Include tick ID and block number
               tickId,
@@ -146,8 +146,8 @@ export class PoolScheduler {
               address: result.poolAddress,
               sqrtPriceX96: result.data.sqrtPriceX96,
               liquidity: result.data.liquidity,
-              token0: '',
-              token1: '',
+              token0: result.data.token0,
+              token1: result.data.token1,
               timestamp: Date.now(),
               // PHASE 6: Include tick ID and block number
               tickId,

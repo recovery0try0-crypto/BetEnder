@@ -30,12 +30,22 @@ interface ChainProviders {
   [chainId: number]: ProviderEndpoints;
 }
 
-import { rpcConfig } from './RpcConfig';
+import { getRpcConfig } from './RpcConfig';
 import { explorerConfig } from './ExplorerConfig';
 
 class ProvidersConfig {
   private static instance: ProvidersConfig;
   
+  // Lazy-loaded RPC config
+  private rpcConfigInstance: any = null;
+
+  private getRpcConfig() {
+    if (!this.rpcConfigInstance) {
+      this.rpcConfigInstance = getRpcConfig();
+    }
+    return this.rpcConfigInstance;
+  }
+
   // Environment variables (with fallbacks)
   private infuraApiKey?: string;
   private alchemyApiKey?: string;
@@ -97,10 +107,10 @@ class ProvidersConfig {
   public getRpcProvider(chainId: number): string {
     // Prefer named provider (Infura) for backward compatibility
     try {
-      return rpcConfig.getRpcEndpointFromProvider('Infura', chainId);
+      return this.getRpcConfig().getRpcEndpointFromProvider('Infura', chainId);
     } catch (e) {
       // Fallback to first available endpoint
-      const endpoints = rpcConfig.getEndpointsForChain(chainId);
+      const endpoints = this.getRpcConfig().getEndpointsForChain(chainId);
       if (endpoints && endpoints.length > 0) {
         return endpoints[0].endpoint;
       }
@@ -120,7 +130,7 @@ class ProvidersConfig {
    * @returns Fallback RPC endpoint
    */
   public getFallbackRpcProvider(chainId: number): string {
-    const endpoints = rpcConfig.getEndpointsForChain(chainId);
+    const endpoints = this.getRpcConfig().getEndpointsForChain(chainId);
     if (endpoints && endpoints.length > 1) {
       return endpoints[1].endpoint;
     }
@@ -146,10 +156,10 @@ class ProvidersConfig {
    */
   public getAlchemyProvider(chainId: number): string | undefined {
     try {
-      return rpcConfig.getRpcEndpointFromProvider('Alchemy', chainId);
-    } catch (e) {
-      const endpoints = rpcConfig.getEndpointsForChain(chainId);
-      const match = endpoints.find(e => e.provider === 'Alchemy');
+      return this.getRpcConfig().getRpcEndpointFromProvider('Alchemy', chainId);
+    } catch (e: any) {
+      const endpoints = this.getRpcConfig().getEndpointsForChain(chainId);
+      const match = endpoints.find((e: any) => e.provider === 'Alchemy');
       return match ? match.endpoint : undefined;
     }
   }
@@ -192,7 +202,7 @@ class ProvidersConfig {
    * @returns Array of supported chain IDs
    */
   public getSupportedChains(): number[] {
-    const rpcChains = Object.keys(rpcConfig.getStatus().counters).map(Number);
+    const rpcChains = Object.keys(this.getRpcConfig().getStatus().counters).map(Number);
     const explorerChains = explorerConfig.getSupportedChains();
     const union = new Set<number>([...rpcChains, ...explorerChains]);
     return Array.from(union).sort((a, b) => a - b);
@@ -234,7 +244,7 @@ class ProvidersConfig {
       warnings.push('POLYGON_RPC_URL not set');
     }
 
-    const rpcStatus = rpcConfig.getStatus();
+    const rpcStatus = this.getRpcConfig().getStatus();
     const explorers = explorerConfig.getStatus();
 
     console.log(`✓ ProvidersConfig: rpc providers: ${rpcStatus.providers.join(', ')}`);
@@ -257,7 +267,7 @@ class ProvidersConfig {
     rpcProviders: string[];
     explorers: { chainId: number; name: string }[];
   } {
-    const rpcStatus = rpcConfig.getStatus();
+    const rpcStatus = this.getRpcConfig().getStatus();
     const explorers = explorerConfig.getStatus();
 
     return {

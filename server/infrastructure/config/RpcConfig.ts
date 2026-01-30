@@ -218,8 +218,10 @@ class RpcConfig {
   }
 }
 
-// Export singleton instance
-export const rpcConfig = RpcConfig.getInstance();
+// Export getInstance function instead of calling it immediately
+export function getRpcConfig(): RpcConfig {
+  return RpcConfig.getInstance();
+}
 
 // Export class for testing
 export { RpcConfig };

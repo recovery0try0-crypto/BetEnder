@@ -29,8 +29,32 @@ export class DiscoveryService {
     // 1. Prime Token Metadata (with delays to avoid rate limiting)
     for (const token of tokens) {
       try {
-        // Assuming EthersAdapter has a method to get token metadata
-        const metadata: TokenMetadata = await this.ethersAdapter.getTokenMetadata(token.address, token.chainId);
+        // Attempt to get metadata via explorer first (Cold Path)
+        let metadata: TokenMetadata | null = null;
+        try {
+          const explorer = explorerConfig.getExplorer(token.chainId);
+          if (explorer.apiKey) {
+            const url = `${explorer.baseUrl}?module=token&action=tokeninfo&contractaddress=${token.address}&apikey=${explorer.apiKey}`;
+            const response = await fetch(url);
+            const data = await response.json() as any;
+            if (data.status === "1" && data.result && data.result[0]) {
+              const info = data.result[0];
+              metadata = {
+                name: info.tokenName || info.name || token.name,
+                symbol: info.symbol || token.symbol,
+                decimals: parseInt(info.divisor || info.decimals || token.decimals.toString())
+              };
+              console.log(`✓ Fetched metadata for ${token.symbol} via Explorer API`);
+            }
+          }
+        } catch (e) {
+          console.warn(`Explorer metadata fetch failed for ${token.symbol}, falling back to RPC`);
+        }
+
+        if (!metadata) {
+          metadata = await this.ethersAdapter.getTokenMetadata(token.address, token.chainId);
+        }
+        
         sharedStateCache.setTokenMetadata(token.address, metadata);
       } catch (error: any) {
         console.error(`Error fetching metadata for ${token.symbol}:`, error.message);

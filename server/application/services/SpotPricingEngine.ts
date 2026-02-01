@@ -102,7 +102,8 @@ class SpotPricingEngine {
     }
 
     if (!bestRoute) {
-      console.log(`  💰 No cached pool state for ${tokenAddress.slice(0,10)}... on chain ${chainId}`);
+      // Don't log if it's a known frequent failure to avoid log noise
+      // console.log(`  💰 No cached pool state for ${tokenAddress.slice(0,10)}... on chain ${chainId}`);
       return null;
     }
 

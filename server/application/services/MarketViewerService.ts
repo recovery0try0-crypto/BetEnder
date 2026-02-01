@@ -142,7 +142,7 @@ class MarketViewerService {
       holders: 0, // Would come from explorer API if implemented
       dataSource: hasValidPrice ? 'multicall' : 'insufficient-data' as DataSource,
       timestamp: Date.now(),
-      cachedUntil: Date.now() + (hasValidPrice ? this.DEFAULT_CACHE_TTL : 5000), // Short TTL for insufficient data
+      cachedUntil: Date.now() + (hasValidPrice ? this.DEFAULT_CACHE_TTL : 0), // Disable caching for insufficient data
     };
 
     // Only cache data with valid prices to allow refresh when pool states become available
@@ -203,7 +203,7 @@ class MarketViewerService {
           holders: 0,
           dataSource: 'insufficient-data' as const,
           timestamp: Date.now(),
-          cachedUntil: Date.now() + this.DEFAULT_CACHE_TTL,
+          cachedUntil: Date.now(), // Disable caching for failed tokens
         };
       })
     );

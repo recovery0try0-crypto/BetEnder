@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@shared/routes';
+import { marketViewerClient } from '@/lib/api/MarketViewerClient';
 import { SwapInterface, TokenMetadata } from '@/components/SwapInterface';
 import { NetworkSelector } from '@/components/NetworkSelector';
 import { TokenMarketView } from '@/components/TokenMarketView';
@@ -9,6 +10,7 @@ import { Sidebar, SidebarProvider } from '@/components/ui/sidebar';
 export default function Dashboard() {
   const [selectedNetwork, setSelectedNetwork] = useState<number>(137); // Default to Polygon
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isAddingToken, setIsAddingToken] = useState<boolean>(false);
 
   const { data: tokensData, isLoading, error } = useQuery<{
     tokens: TokenMetadata[];
@@ -54,12 +56,20 @@ export default function Dashboard() {
   })) || [];
 
   const handleAddToken = async (address: string) => {
+    setIsAddingToken(true);
     try {
-      console.log('Adding token:', address, 'on network:', selectedNetwork);
-      // This would trigger the discovery service in a real implementation
-      // For now, just log the action
+      const result = await marketViewerClient.addToken(address, selectedNetwork);
+      if (result.success) {
+        console.log(`✅ Token added to quarantine: ${result.status}`);
+        // Could show toast notification here
+      } else {
+        console.error(`❌ Failed to add token: ${result.message}`);
+        // Could show error toast here
+      }
     } catch (err) {
       console.error('Error adding token:', err);
+    } finally {
+      setIsAddingToken(false);
     }
   };
 
@@ -93,7 +103,7 @@ export default function Dashboard() {
               <div className="text-center py-12 text-gray-500">Loading tokens...</div>
             ) : (
               <>
-                <TokenMarketView chainId={selectedNetwork} />
+                <TokenMarketView chainId={selectedNetwork} onAddToken={handleAddToken} isAddingToken={isAddingToken} />
                 {/* Pagination Controls */}
                 {tokensData?.pagination && tokensData.pagination.totalPages > 1 && (
                   <div className="mt-8 flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-200">

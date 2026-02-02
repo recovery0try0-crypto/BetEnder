@@ -26,9 +26,11 @@ import { StorageService } from './StorageService';
 import { spotPricingEngine } from './SpotPricingEngine';
 import { sharedStateCache } from './SharedStateCache';
 import { poolController } from './PoolController';
+import { CacheLayer } from './CacheLayer';
 import { PoolScheduler } from './PoolScheduler';
 import { EthersAdapter } from '../../infrastructure/adapters/EthersAdapter';
 import { providersConfig } from '../../infrastructure/config/ProvidersConfig';
+import { timingConfig } from '../../infrastructure/config/TimingConfig';
 import {
   TokenMarketData,
   MarketOverview,
@@ -39,13 +41,15 @@ import {
 
 class MarketViewerService {
   private storageService: StorageService;
+  private cacheLayer: CacheLayer;
   private cache: Map<string, { data: TokenMarketData; expireAt: number }> = new Map();
-  private readonly DEFAULT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly DEFAULT_CACHE_TTL = timingConfig.MARKET_DATA_CACHE_TTL_MS;
   private poolScheduler: PoolScheduler | null = null;
   private schedulerStarted = false;
 
   constructor(storageService: StorageService) {
     this.storageService = storageService;
+    this.cacheLayer = new CacheLayer(storageService);
     this.initializeScheduler();
   }
 
@@ -156,9 +160,10 @@ class MarketViewerService {
    * Get market overview for all tokens on a network
    * 
    * HOT PATH: Called when UI requests token prices.
-   * 1. Notifies PoolController of token interest (maps to pools)
-   * 2. Starts PoolScheduler if needed
-   * 3. Fetches pricing data for each token
+   * 1. Deduplicates pools from all token pricing routes
+   * 2. Notifies PoolController of token interest (maps to pools)
+   * 3. Starts PoolScheduler if needed
+   * 4. Fetches pricing data for each token
    * 
    * @param chainId Network chain ID
    * @param tokensWithPools Tokens with pricingPools already attached
@@ -170,22 +175,27 @@ class MarketViewerService {
     // If tokens not provided, get from storage and attach pools
     let tokens = tokensWithPools;
     if (!tokens) {
-      const tokensFromStorage = await this.storageService.getTokensByNetwork(chainId);
-      const poolRegistry = await this.storageService.getPoolRegistry(chainId);
+      const tokensFromStorage = await this.cacheLayer.getTokensByNetworkCached(chainId);
+      const poolRegistry = await this.cacheLayer.getPoolRegistryCached(chainId);
       tokens = tokensFromStorage.map(token => ({
         ...token,
         pricingPools: poolRegistry.pricingRoutes[token.address.toLowerCase()] || [],
       }));
     }
 
+    // PHASE 7: Deduplicate pools before notifying PoolController
+    // Multiple tokens can share same pools - dedup by pool address
+    const deduplicatedTokens = this.deduplicateTokensByPool(tokens);
+    console.log(`✓ Deduplicated: ${tokens.length} tokens → ${deduplicatedTokens.length} pool sets`);
+
     // HOT PATH INTEGRATION:
     // 1. Notify PoolController of token interest (deduplicates to pools)
-    poolController.handleTokenInterest(tokens, chainId);
+    poolController.handleTokenInterest(deduplicatedTokens, chainId);
     
     // 2. Start scheduler if needed
     await this.startSchedulerIfNeeded();
 
-    // Fetch market data for each token in parallel with error handling
+    // Fetch market data for each original token (not deduplicated - user sees all)
     const marketDataPromises = tokens.map(token =>
       this.getTokenMarketData(token.address, chainId).catch(error => {
         console.error(`Error fetching market data for ${token.symbol}:`, error.message);
@@ -224,16 +234,50 @@ class MarketViewerService {
   }
 
   /**
+   * PHASE 7: Deduplicate tokens by their pricing pools
+   * 
+   * Multiple tokens can share the same pools (e.g., both USDC and DAI → USDC/WETH pool).
+   * We deduplicate by unique pool set before notifying PoolController.
+   * 
+   * @param tokens Tokens with pricingPools attached
+   * @returns Deduplicated tokens (one token per unique pool set)
+   */
+  private deduplicateTokensByPool(tokens: any[]): any[] {
+    const poolSets = new Map<string, any>(); // poolSetKey → first token with this pool set
+
+    for (const token of tokens) {
+      const poolAddresses = (token.pricingPools || [])
+        .map((route: any) => route.pool)
+        .sort() // Sort for consistent comparison
+        .join('|');
+
+      const poolSetKey = `${token.chainId || 1}:${poolAddresses}`;
+
+      if (!poolSets.has(poolSetKey)) {
+        poolSets.set(poolSetKey, token);
+        // console.log(`  Pool set [${poolAddresses.slice(0, 20)}...]: first occurrence is ${token.symbol}`);
+      } else {
+        // console.log(`  Pool set [${poolAddresses.slice(0, 20)}...]: duplicate (${token.symbol} shares with ${poolSets.get(poolSetKey).symbol})`);
+      }
+    }
+
+    return Array.from(poolSets.values());
+  }
+
+  /**
    * Search for tokens by symbol, name, or address
+   * 
+   * Uses CacheLayer for performance (in-memory tokens)
    * 
    * @param query Search query
    * @param chainId Network chain ID
-   * @returns Array of matching tokens
+   * @returns Array of matching tokens sorted by relevance
    */
   public async searchTokens(query: string, chainId: number): Promise<TokenSearchResult[]> {
     console.log(`🔍 Searching tokens for: "${query}" on chain ${chainId}`);
 
-    const tokens = await this.storageService.getTokensByNetwork(chainId);
+    // Use CacheLayer to get tokens (in-memory, no disk I/O)
+    const tokens = await this.cacheLayer.getTokensByNetworkCached(chainId);
     const lowerQuery = query.toLowerCase();
 
     const results: TokenSearchResult[] = tokens
@@ -262,6 +306,7 @@ class MarketViewerService {
           symbol: token.symbol,
           name: token.name,
           chainId,
+          decimals: token.decimals,
           logoURI: (token as any).logoURI,
           relevanceScore,
         };
@@ -269,26 +314,28 @@ class MarketViewerService {
       .filter(t => t.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore);
 
+    console.log(`✓ Search found ${results.length} matching token(s)`);
     return results;
   }
 
   /**
    * Get tokens for a specific network
    * 
-   * PHASE 1: Attach pool metadata before serving to hot path
+   * PHASE 7: Use CacheLayer for in-memory token caching
+   * Eliminates repeated disk reads
    * 
    * @param chainId Network chain ID
    * @returns List of tokens with attached pool metadata
    */
   public async getTokensForNetwork(chainId: number) {
     console.log(`📋 Fetching tokens for chain ${chainId}`);
-    const tokens = await this.storageService.getTokensByNetwork(chainId);
+    const tokens = await this.cacheLayer.getTokensByNetworkCached(chainId);
     
-    // PHASE 1: Attach pool metadata to each token
-    const poolRegistry = await this.storageService.getPoolRegistry(chainId);
+    // Attach pool metadata to each token
+    const poolRegistry = await this.cacheLayer.getPoolRegistryCached(chainId);
     const tokensWithPools = tokens.map(token => ({
       ...token,
-      pricingPools: poolRegistry.pricingRoutes[token.address] || [],
+      pricingPools: poolRegistry.pricingRoutes[token.address.toLowerCase()] || [],
     }));
 
     return tokensWithPools;

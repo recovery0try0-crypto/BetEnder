@@ -25,11 +25,18 @@ import { sharedStateCache } from './SharedStateCache';
 import { MulticallEngine } from './MulticallEngine';
 import { StorageService } from './StorageService';
 import { EthersAdapter } from '../../infrastructure/adapters/EthersAdapter';
+import { timingConfig } from '../../infrastructure/config/TimingConfig';
 
 export class PoolScheduler {
   private isRunning = false;
   private executionLoopIntervalId: NodeJS.Timeout | null = null;
   private multicallEngine: MulticallEngine;
+
+  // PHASE 5: Micro-batching collection window
+  private collectionWindow = timingConfig.MICROBATCH_COLLECTION_WINDOW_MS;
+  private pendingPoolsForBatch: Set<string> = new Set(); // poolKey deduplication
+  private batchFlushTimer: NodeJS.Timeout | null = null;
+  private lastBatchExecutionTime = 0;
 
   constructor(
     private storageService: StorageService,
@@ -58,13 +65,33 @@ export class PoolScheduler {
     console.log('🚀 Starting pool scheduler (tiered scheduling enabled)');
     this.isRunning = true;
 
-    // Main loop: check every 10 seconds for pools due refresh
-    // (Reduced from 1s to avoid hitting RPC rate limits on free tier)
-    this.executionLoopIntervalId = setInterval(() => {
-      this.executionLoop().catch(error => {
-        console.error('❌ Error in scheduler execution loop:', error);
-      });
-    }, 10000);
+    // FIX #5: Dynamic interval - check at next pool refresh time, not fixed 10s
+    // This ensures high-volatility pools (5s tier) refresh on time
+    const scheduleNextExecution = () => {
+      if (!this.isRunning) return;
+      
+      const alivePoolsSet = poolController.getAliveSet();
+      if (alivePoolsSet.length === 0) {
+        // No pools yet, check again in 1 second
+        this.executionLoopIntervalId = setTimeout(scheduleNextExecution, 1000);
+        return;
+      }
+      
+      // Find next pool that needs refresh
+      const nextRefreshTime = Math.min(...alivePoolsSet.map(p => p.nextRefresh));
+      const timeUntilNextRefresh = Math.max(0, nextRefreshTime - Date.now());
+      const delayMs = Math.min(timeUntilNextRefresh, 1000); // Max 1 second, min 0
+      
+      this.executionLoopIntervalId = setTimeout(() => {
+        this.executionLoop().catch(error => {
+          console.error('❌ Error in scheduler execution loop:', error);
+        }).finally(() => {
+          scheduleNextExecution(); // Reschedule after execution
+        });
+      }, delayMs);
+    };
+    
+    scheduleNextExecution();
   }
 
   /**
@@ -72,10 +99,16 @@ export class PoolScheduler {
    * 
    * Called every 1 second to:
    * 1. Check which pools are due for refresh
-   * 2. Group into weight-aware batches (Phase 4)
-   * 3. Execute multicall for each batch (Phase 4)
-   * 4. Update tiers based on price changes
-   * 5. Reschedule next refresh
+   * 2. Collect into pending batch (with deduplication)
+   * 3. Wait for collection window (50-100ms) to batch
+   * 4. Execute multicall for deduplicated batch
+   * 5. Update tiers based on price changes
+   * 6. Reschedule next refresh
+   * 
+   * PHASE 5 IMPROVEMENT: Micro-batching
+   * - Pools are collected in pendingPoolsForBatch
+   * - Collection window allows deduplication within window
+   * - Batch executes when: window expires OR 10+ pools collected
    */
   private async executionLoop(): Promise<void> {
     // Get pools that are due for refresh (nextRefresh <= now)
@@ -85,22 +118,109 @@ export class PoolScheduler {
       return; // Nothing to do
     }
 
-    console.log(`⚡ [SCHEDULER] ${poolsDue.length} pool(s) due for refresh`);
+    // PHASE 5: Add pools to pending batch (with deduplication by poolKey)
+    const poolsByChain = new Map<number, AlivePool[]>();
+    let newPoolsAdded = 0;
 
-    // Group pools by chainId
-    const poolsByChain = new Map<number, typeof poolsDue>();
     for (const pool of poolsDue) {
-      const chainId = pool.chainId || 1; // Default to Ethereum if not set
+      const chainId = pool.chainId || 1;
+      const poolKey = `${chainId}:${pool.address}`;
+      
+      if (!this.pendingPoolsForBatch.has(poolKey)) {
+        this.pendingPoolsForBatch.add(poolKey);
+        newPoolsAdded++;
+        
+        // Organize by chain for batch execution
+        if (!poolsByChain.has(chainId)) {
+          poolsByChain.set(chainId, []);
+        }
+        poolsByChain.get(chainId)!.push(pool);
+      }
+    }
+
+    if (newPoolsAdded === 0) {
+      return; // All pools already pending, wait for window
+    }
+
+    console.log(`⚡ [SCHEDULER] ${newPoolsAdded} new pool(s) added to pending batch (total pending: ${this.pendingPoolsForBatch.size})`);
+
+    // PHASE 5: Schedule batch flush
+    // If no timer is active, start one
+    if (!this.batchFlushTimer) {
+      this.scheduleBatchFlush();
+    }
+
+    // PHASE 5: Threshold check - if we have 10+ pools, flush immediately
+    if (this.pendingPoolsForBatch.size >= 10) {
+      console.log(`📦 [SCHEDULER] Threshold reached (${this.pendingPoolsForBatch.size} pools), flushing batch immediately`);
+      await this.flushBatch();
+    }
+  }
+
+  /**
+   * PHASE 5: Schedule batch flush after collection window
+   * Ensures we wait before executing, allowing deduplication
+   */
+  private scheduleBatchFlush(): void {
+    if (this.batchFlushTimer) {
+      clearTimeout(this.batchFlushTimer);
+    }
+
+    this.batchFlushTimer = setTimeout(async () => {
+      console.log(`⏱️ [SCHEDULER] Collection window expired, flushing ${this.pendingPoolsForBatch.size} deduplicated pool(s)`);
+      await this.flushBatch();
+      this.batchFlushTimer = null;
+    }, this.collectionWindow);
+  }
+
+  /**
+   * PHASE 5: Execute pending batch and clear
+   * Converts pending pool keys back to AlivePool objects and executes
+   */
+  private async flushBatch(): Promise<void> {
+    if (this.batchFlushTimer) {
+      clearTimeout(this.batchFlushTimer);
+      this.batchFlushTimer = null;
+    }
+
+    if (this.pendingPoolsForBatch.size === 0) {
+      return;
+    }
+
+    // Convert poolKeys back to AlivePool objects from controller
+    const aliveSet = poolController.getAliveSet();
+    const poolsToExecute: AlivePool[] = [];
+    
+    for (const poolKey of this.pendingPoolsForBatch) {
+      const [chainIdStr, address] = poolKey.split(':');
+      const pool = aliveSet.find(p => p.address === address && p.chainId === Number(chainIdStr));
+      if (pool) {
+        poolsToExecute.push(pool);
+      }
+    }
+
+    // Clear pending batch before execution
+    this.pendingPoolsForBatch.clear();
+
+    if (poolsToExecute.length === 0) {
+      return;
+    }
+
+    // Group by chain and execute
+    const poolsByChain = new Map<number, typeof poolsToExecute>();
+    for (const pool of poolsToExecute) {
+      const chainId = pool.chainId || 1;
       if (!poolsByChain.has(chainId)) {
         poolsByChain.set(chainId, []);
       }
       poolsByChain.get(chainId)!.push(pool);
     }
 
-    // Process each chain
+    const startTime = Date.now();
     for (const [chainId, chainPools] of poolsByChain) {
       await this.executeForChain(chainId, chainPools);
     }
+    this.lastBatchExecutionTime = Date.now() - startTime;
   }
 
   /**
@@ -197,6 +317,17 @@ export class PoolScheduler {
       return;
     }
 
+    // PHASE 5: Clear collection window timer
+    if (this.batchFlushTimer) {
+      clearTimeout(this.batchFlushTimer);
+      this.batchFlushTimer = null;
+    }
+
+    // Flush any pending batch before stopping
+    if (this.pendingPoolsForBatch.size > 0) {
+      await this.flushBatch();
+    }
+
     if (this.executionLoopIntervalId) {
       clearInterval(this.executionLoopIntervalId);
       this.executionLoopIntervalId = null;
@@ -241,6 +372,13 @@ export class PoolScheduler {
         high_5s: byTier.high,
         normal_10s: byTier.normal,
         low_30s: byTier.low,
+      },
+      // PHASE 5: Micro-batching metrics
+      microBatching: {
+        pendingPoolsInBatch: this.pendingPoolsForBatch.size,
+        collectionWindowMs: this.collectionWindow,
+        lastBatchExecutionMs: this.lastBatchExecutionTime,
+        batchFlushScheduled: this.batchFlushTimer !== null,
       },
     };
   }

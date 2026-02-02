@@ -1,5 +1,8 @@
 import { StorageService } from './StorageService';
+import { TokenDiscoveryManager } from './TokenDiscoveryManager';
 import { EthersAdapter } from '../../infrastructure/adapters/EthersAdapter';
+import { CacheLayer } from './CacheLayer';
+import { timingConfig } from '../../infrastructure/config/TimingConfig';
 
 /**
  * PHASE 7: Quarantine Validator
@@ -18,12 +21,14 @@ import { EthersAdapter } from '../../infrastructure/adapters/EthersAdapter';
  */
 class QuarantineValidator {
   private validationLoops: Map<number, NodeJS.Timeout> = new Map();
-  private readonly VALIDATION_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-  private readonly MIN_LIQUIDITY = 1000 * Math.pow(10, 18); // 1000 base units
+  private readonly VALIDATION_INTERVAL_MS = timingConfig.QUARANTINE_VALIDATION_INTERVAL_MS;
+  private readonly MIN_LIQUIDITY = timingConfig.QUARANTINE_MIN_LIQUIDITY;
 
   constructor(
     private storageService: StorageService,
-    private ethersAdapter: EthersAdapter
+    private ethersAdapter: EthersAdapter,
+    private tokenDiscoveryManager: TokenDiscoveryManager,
+    private cacheLayer?: CacheLayer
   ) {}
 
   /**
@@ -41,7 +46,7 @@ class QuarantineValidator {
   async validateToken(chainId: number, tokenAddress: string): Promise<boolean> {
     try {
       const quarantine = await this.storageService.getQuarantineRegistry(chainId);
-      const entry: any = quarantine.entries[tokenAddress];
+      const entry: any = quarantine.entries[tokenAddress.toLowerCase()];
 
       if (!entry) {
         return false; // Token not in quarantine
@@ -53,30 +58,58 @@ class QuarantineValidator {
 
       console.log(`🔍 PHASE 7: Validating quarantined token ${tokenAddress.slice(0, 6)}...`);
 
-      // STEP 1: Find pools containing this token
-      // NOTE: This is where we discover pool topology for the token
-      // In real implementation, would query graph or explorer
-      // For now, we check if token exists in known pools from discovery
+      // STEP 1: Ensure topology exists for this token
+      // If not discovered yet, trigger discovery now
       const poolRegistry = await this.storageService.getPoolRegistry(chainId);
-      const tokenPools = Object.values(poolRegistry.pools).filter(
-        (pool: any) => pool.token0 === tokenAddress || pool.token1 === tokenAddress
+      const existingPools = Object.values(poolRegistry.pools || {}).filter(
+        (pool: any) => pool.token0?.toLowerCase() === tokenAddress.toLowerCase() || pool.token1?.toLowerCase() === tokenAddress.toLowerCase()
       );
 
-      if (tokenPools.length === 0) {
-        console.log(`  ❌ No pools found for token ${tokenAddress.slice(0, 6)}... - not eligible`);
-        return false; // No pools - cannot validate
+      if (existingPools.length === 0) {
+        console.log(`  ⏳ No pools found - triggering discovery for ${tokenAddress.slice(0, 6)}...`);
+        
+        // Trigger discovery for this single token
+        const discovered = await this.tokenDiscoveryManager.discoverPoolsForTokens(
+          [
+            {
+              address: tokenAddress,
+              symbol: entry.metadata?.symbol || 'UNKNOWN',
+              name: entry.metadata?.name || 'Unknown Token',
+              decimals: entry.metadata?.decimals || 18,
+              chainId,
+              logoURI: '',
+            }
+          ],
+          chainId
+        );
+
+        if (discovered === 0) {
+          console.log(`  ❌ Discovery found no pools for token ${tokenAddress.slice(0, 6)}... - not eligible`);
+          return false; // Discovery found nothing
+        }
+
+        console.log(`  ✓ Discovery found ${discovered} pool(s) for token`);
+      } else {
+        console.log(`  ✓ Found ${existingPools.length} pool(s) for token (already discovered)`);
       }
 
-      // STEP 2: Check liquidity of first pool
-      // In production, would query actual pool contract state
-      // For MVP, assume pools from discovery are valid
-      const primaryPool: any = tokenPools[0];
+      // STEP 2: Recheck pools after potential discovery
+      const updatedRegistry = await this.storageService.getPoolRegistry(chainId);
+      const validPools = Object.values(updatedRegistry.pools || {}).filter(
+        (pool: any) => pool.token0?.toLowerCase() === tokenAddress.toLowerCase() || pool.token1?.toLowerCase() === tokenAddress.toLowerCase()
+      );
 
-      console.log(`  ✓ Found ${tokenPools.length} pool(s) for token`);
+      if (validPools.length === 0) {
+        console.log(`  ❌ Still no pools after discovery - validation failed`);
+        return false;
+      }
+
+      const primaryPool: any = validPools[0];
+
       console.log(`  ✓ Liquidity check: ${primaryPool.address.slice(0, 6)}...`);
 
-      // STEP 3: Promote to primary registry
-      await this.storageService.promoteQuarantineToken(chainId, tokenAddress);
+      // STEP 3: Promote to primary registry with cache invalidation
+      await this.storageService.promoteQuarantineToken(chainId, tokenAddress, this.cacheLayer);
       entry.promoted = true;
 
       console.log(`  ✅ Token ${tokenAddress.slice(0, 6)}... validated and promoted`);
@@ -108,16 +141,22 @@ class QuarantineValidator {
         `🔄 PHASE 7: Starting quarantine validation for ${entries.length} token(s)`
       );
 
+      // FIX #2: Validate all tokens in parallel instead of sequentially
+      const unvalidatedEntries = entries.filter(([_, entry]) => !(entry as any).promoted);
+      
+      const validationResults = await Promise.all(
+        unvalidatedEntries.map(([tokenAddress]) => 
+          this.validateToken(chainId, tokenAddress).catch(err => {
+            console.error(`Error validating ${tokenAddress}:`, err);
+            return false;
+          })
+        )
+      );
+
       let validated = 0;
       let failed = 0;
 
-      for (const [tokenAddress, entry] of entries) {
-        const typedEntry: any = entry;
-        if (typedEntry.promoted) {
-          continue; // Already validated
-        }
-
-        const valid = await this.validateToken(chainId, tokenAddress);
+      for (const valid of validationResults) {
         if (valid) {
           validated++;
         } else {

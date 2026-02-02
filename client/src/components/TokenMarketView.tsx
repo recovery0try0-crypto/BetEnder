@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, TrendingUp, Loader } from 'lucide-react';
 import { useMarketOverview } from '@/hooks/useMarketOverview';
+import { useDebounce } from '@/hooks/useDebounce';
+import { marketViewerClient } from '@/lib/api/MarketViewerClient';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
-import type { TokenMarketData } from '@shared/schema';
+import type { TokenMarketData, TokenSearchResult } from '@shared/schema';
 
 interface TokenMarketViewProps {
   chainId: number;
@@ -16,17 +18,62 @@ export function TokenMarketView({ chainId, onAddToken, isAddingToken }: TokenMar
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddToken, setShowAddToken] = useState(false);
   const [newTokenAddress, setNewTokenAddress] = useState('');
+  
+  // Debounce search input (300ms delay)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  
+  // Search results state
+  const [searchResults, setSearchResults] = useState<TokenSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Fetch market overview
   const { data: overview, isLoading, error } = useMarketOverview(chainId);
 
+  // When search term changes (after debounce), call server search
+  useEffect(() => {
+    if (debouncedSearchTerm.trim().length === 0) {
+      // No search term - clear results
+      setSearchResults([]);
+      return;
+    }
+
+    // Call server search API
+    const performSearch = async () => {
+      setIsSearching(true);
+      try {
+        const results = await marketViewerClient.searchTokens(debouncedSearchTerm, chainId);
+        setSearchResults(results || []);
+      } catch (err) {
+        console.error('Search error:', err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    performSearch();
+  }, [debouncedSearchTerm, chainId]);
+
   const tokens = overview?.tokens || [];
 
-  const filteredTokens = tokens.filter(token =>
-    token.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    token.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // If user has entered search term, show search results; otherwise show full token list with client-side filter
+  const displayTokens = debouncedSearchTerm.trim().length > 0 
+    ? searchResults.map(result => ({
+        address: result.address,
+        symbol: result.symbol,
+        name: result.name,
+        decimals: result.decimals,
+        chainId: result.chainId,
+        price: 0,
+        priceChange24h: 0,
+        liquidity: 0,
+        volume24h: 0,
+        holders: 0,
+        dataSource: 'cached' as const,
+        timestamp: Date.now(),
+        cachedUntil: Date.now(),
+      }) as TokenMarketData)
+    : tokens;
 
   const handleAddToken = () => {
     if (newTokenAddress.trim() && onAddToken) {
@@ -63,13 +110,16 @@ export function TokenMarketView({ chainId, onAddToken, isAddingToken }: TokenMar
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
-                />
+            />
+            {isSearching && debouncedSearchTerm && (
+              <Loader className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+            )}
             {onAddToken && (
               <Button
                 onClick={() => setShowAddToken(!showAddToken)}
                 variant="outline"
                 size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2"
+                className="absolute right-10 top-1/2 transform -translate-y-1/2"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Add
@@ -101,12 +151,12 @@ export function TokenMarketView({ chainId, onAddToken, isAddingToken }: TokenMar
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTokens.length === 0 ? (
+            {displayTokens.length === 0 ? (
               <div className="col-span-full text-center py-8 text-gray-500">
-                {searchTerm ? 'No tokens found' : 'No tokens available'}
+                {debouncedSearchTerm && isSearching ? 'Searching...' : debouncedSearchTerm ? 'No tokens found' : 'No tokens available'}
               </div>
             ) : (
-              filteredTokens.map((token) => (
+              displayTokens.map((token) => (
                 <Card key={token.address} className="p-4 hover:shadow-lg transition">
                   <div className="flex justify-between items-start mb-2">
                     <div>

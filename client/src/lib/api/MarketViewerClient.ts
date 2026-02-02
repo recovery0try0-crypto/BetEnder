@@ -152,6 +152,110 @@ export class MarketViewerClient {
       return false;
     }
   }
+
+  /**
+   * Add a new token for discovery and validation
+   * POST /api/tokens
+   * 
+   * @param tokenAddress - Token contract address to add
+   * @param chainId - Network chain ID
+   * @param metadata - Optional token metadata (symbol, name, decimals)
+   * @returns Status object with success/error information
+   */
+  public async addToken(
+    tokenAddress: string,
+    chainId: number,
+    metadata?: { symbol?: string; name?: string; decimals?: number }
+  ): Promise<{ success: boolean; status?: string; message?: string }> {
+    try {
+      console.log(`➕ [MarketViewer] Adding token ${tokenAddress.slice(0, 8)}... on chain ${chainId}`);
+
+      const response = await fetch(`${this.baseUrl.replace('/api', '')}/api/tokens`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tokenAddress,
+          chainId,
+          metadata,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(`[MarketViewer] Add token failed: ${data.message}`);
+        return {
+          success: false,
+          status: data.status || 'error',
+          message: data.message,
+        };
+      }
+
+      console.log(`✅ [MarketViewer] Token added to quarantine: ${data.status}`);
+      return {
+        success: true,
+        status: data.status,
+        message: data.message,
+      };
+    } catch (error) {
+      console.error('[MarketViewer] Error adding token:', error);
+      return {
+        success: false,
+        message: `Error adding token: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  }
+
+  /**
+   * Send stay-alive to keep pools refreshing
+   * POST /api/market/stay-alive
+   * 
+   * Called periodically by UI while user watches tokens.
+   * Increments refCount on backend to prevent pools from being garbage collected.
+   * 
+   * @param tokenAddresses - Array of token addresses being watched
+   * @param chainId - Network chain ID
+   * @param ttl - Time-to-live in milliseconds (typically 30000 for 30s interval)
+   * @returns Success status
+   */
+  public async sendStayAlive(
+    tokenAddresses: string[],
+    chainId: number,
+    ttl: number = 30000
+  ): Promise<boolean> {
+    try {
+      if (!tokenAddresses || tokenAddresses.length === 0) {
+        console.warn('[MarketViewer] Stay-alive: no tokens to keep alive');
+        return false;
+      }
+
+      const response = await fetch(`${this.baseUrl}/market/stay-alive`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tokenAddresses,
+          chainId,
+          ttl,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error(`[MarketViewer] Stay-alive failed: ${response.statusText}`);
+        return false;
+      }
+
+      const data = await response.json();
+      console.log(`💓 [MarketViewer] Stay-alive sent: ${data.poolsIncremented} pools updated`);
+      return true;
+    } catch (error) {
+      console.error('[MarketViewer] Error sending stay-alive:', error);
+      return false;
+    }
+  }
 }
 
 // Export singleton instance

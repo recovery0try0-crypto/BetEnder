@@ -61,6 +61,7 @@ export const tokenSearchResultSchema = z.object({
   symbol: z.string(),
   name: z.string(),
   chainId: z.number(),
+  decimals: z.number(),
   logoURI: z.string().optional(),
   relevanceScore: z.number(),
 });

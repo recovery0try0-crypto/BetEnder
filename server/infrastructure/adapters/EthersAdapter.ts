@@ -3,9 +3,7 @@ import { ethers, BaseContract } from "ethers";
 import { PoolState, TokenMetadata } from "../../domain/types";
 import type { MulticallResult } from "../../application/services/MulticallEngine";
 import { explorerConfig } from "../config/ExplorerConfig";
-
-const MULTICALL_ADDRESS = "0xca11bde05977b3631167028862be2a173976ca11";
-const UNISWAP_V3_FACTORY = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
+import { getContractAddress } from "../config/ContractAddressConfig";
 
 const ERC20_ABI = [
     "function name() view returns (string)",
@@ -38,8 +36,9 @@ export class EthersAdapter {
     this.factories = {};
     for (const chainId in rpcUrls) {
       this.providers[chainId] = new ethers.JsonRpcProvider(rpcUrls[chainId]);
-      // Create factory for each chain
-      this.factories[chainId] = new ethers.Contract(UNISWAP_V3_FACTORY, FACTORY_ABI, this.providers[chainId]);
+      // Create factory for each chain using configured address
+      const factoryAddress = getContractAddress(parseInt(chainId, 10), 'uniswapV3Factory');
+      this.factories[chainId] = new ethers.Contract(factoryAddress, FACTORY_ABI, this.providers[chainId]);
     }
   }
 
@@ -86,7 +85,7 @@ export class EthersAdapter {
       const explorer = explorerConfig.getExplorer(chainId);
       if (explorer.apiKey) {
         const baseUrl = explorer.baseUrl;
-        const factoryAddress = UNISWAP_V3_FACTORY;
+        const factoryAddress = getContractAddress(chainId, 'uniswapV3Factory');
         const url = `${baseUrl}?module=contract&action=read&address=${factoryAddress}&functionname=getPool&inputs=${tokenA.address},${tokenB.address},${fee}&apikey=${explorer.apiKey}`;
         
         const response = await fetch(url);
@@ -150,7 +149,8 @@ export class EthersAdapter {
     chainId: number
   ): Promise<MulticallResult[]> {
     const provider = this.getProvider(chainId);
-    const multicallContract = new ethers.Contract(MULTICALL_ADDRESS, MULTICALL_ABI, provider);
+    const multicallAddress = getContractAddress(chainId, 'multicall');
+    const multicallContract = new ethers.Contract(multicallAddress, MULTICALL_ABI, provider);
 
     // Construct calls for each pool (slot0 + liquidity + token0 + token1)
     const calls = [];

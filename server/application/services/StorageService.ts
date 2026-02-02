@@ -145,11 +145,13 @@ export class StorageService {
    * 
    * Called when a quarantined token passes validation.
    * Moves token from quarantine to primary registry.
+   * Invalidates CacheLayer so fresh data is served on next request.
    * 
    * @param chainId Network chain ID
    * @param tokenAddress Token address to promote
+   * @param cacheLayer Optional CacheLayer to invalidate after promotion
    */
-  async promoteQuarantineToken(chainId: number, tokenAddress: string): Promise<void> {
+  async promoteQuarantineToken(chainId: number, tokenAddress: string, cacheLayer?: any): Promise<void> {
     const quarantine = await this.getQuarantineRegistry(chainId);
     const entry = quarantine.entries[tokenAddress];
     
@@ -167,7 +169,7 @@ export class StorageService {
         address: tokenAddress,
         ...entry.metadata,
         chainId: chainId,
-        logoURI: '' // Empty logo - will be fetched separately
+        logoURI: entry.metadata.logoURI || '', // Preserve logo from metadata
       });
     }
     
@@ -179,6 +181,13 @@ export class StorageService {
     await this.saveQuarantineRegistry(chainId, quarantine);
     
     console.log(`✅ PHASE 7: Token ${tokenAddress.slice(0, 6)}... promoted from quarantine to primary`);
+    
+    // CACHE INVALIDATION: Refresh cached token list for next request
+    // This ensures the newly promoted token is included in searches and overviews
+    if (cacheLayer) {
+      cacheLayer.invalidateTokenCache(chainId);
+      console.log(`  🔄 Invalidated token cache for chain ${chainId} - newly promoted token will be served on next request`);
+    }
   }
 
   /**

@@ -12,6 +12,7 @@ import { EthersAdapter } from './infrastructure/adapters/EthersAdapter';
 import { DiscoveryService } from './application/services/DiscoveryService';
 import { StorageService } from './application/services/StorageService';
 import { QuarantineValidator } from './application/services/QuarantineValidator';
+import { TokenDiscoveryManager } from './application/services/TokenDiscoveryManager';
 import { GCManager } from './application/services/GCManager';
 import http from 'http';
 import { priceViewerService } from './application/services/PriceViewerService.ts';
@@ -64,6 +65,8 @@ const ethersAdapter = new EthersAdapter(rpcProviders);
 const storageService = new StorageService();
 
 app.locals.storageService = storageService;
+app.locals.ethersAdapter = ethersAdapter;
+app.locals.explorerConfig = explorerConfig;
 
 const discoveryService = new DiscoveryService(storageService, ethersAdapter);
 
@@ -84,8 +87,11 @@ if (process.env.SKIP_DISCOVERY !== 'true') {
 
 const swapController = new SwapController();
 
+// Initialize TokenDiscoveryManager for use by other services
+const tokenDiscoveryManager = new TokenDiscoveryManager(storageService);
+
 // PHASE 7: Initialize and start quarantine validator
-const quarantineValidator = new QuarantineValidator(storageService, ethersAdapter);
+const quarantineValidator = new QuarantineValidator(storageService, ethersAdapter, tokenDiscoveryManager);
 console.log('🔄 PHASE 7: Starting quarantine validator loops...');
 quarantineValidator.startValidationLoop(1); // Ethereum
 quarantineValidator.startValidationLoop(137); // Polygon

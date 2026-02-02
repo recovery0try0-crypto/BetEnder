@@ -6,6 +6,8 @@ export interface TokenMetadata {
   name: string;
   symbol: string;
   decimals: number;
+  logoURI?: string;
+  logoFetchedAt?: number; // Timestamp when logo was fetched (for cleanup TTL)
 }
 
 /**
@@ -56,10 +58,14 @@ export interface PricingRoute {
  * Network-scoped registry containing:
  * 1. Pool metadata indexed by address
  * 2. Pricing routes indexed by token address
+ * 3. Topology timestamp per token for TTL tracking (7 days)
+ * 4. Reference count per pool (number of active users)
  */
 export interface PoolRegistry {
   pools: Record<string, PoolMetadata>;
   pricingRoutes: Record<string, PricingRoute[]>;
+  topologyTimestamp?: Record<string, number>; // Timestamp (ms) when token topology was last refreshed
+  refCount?: Record<string, number>; // Per-pool user count (poolAddress -> count)
 }
 
 /**

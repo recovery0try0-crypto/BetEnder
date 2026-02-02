@@ -27,6 +27,7 @@ export interface AlivePool {
   lastPrice: number; // last computed price
   requestCount: number; // total requests for this pool
   lastRequestTime: number; // timestamp of most recent request
+  refCount: number; // number of active users requesting this pool
 }
 
 export class PoolController {
@@ -41,7 +42,7 @@ export class PoolController {
    * 
    * When UI requests prices for a set of tokens, this method:
    * 1. Extracts pricing routes from each token's metadata
-   * 2. For each route, adds pool to alive set (or extends liveness)
+   * 2. For each route, adds pool to alive set (or increments refCount)
    * 3. Deduplicates pools automatically (Map prevents duplicates)
    * 
    * Result: N token requests → M pool tracking entries (M ≤ N)
@@ -64,8 +65,9 @@ export class PoolController {
         const poolKey = `${chainId}:${poolAddress}`;
 
         if (this.aliveSet.has(poolKey)) {
-          // Pool already tracked - extend its liveness
+          // Pool already tracked - increment refCount and extend liveness
           const pool = this.aliveSet.get(poolKey)!;
+          pool.refCount++;
           pool.lastRequestTime = Date.now();
           pool.requestCount++;
         } else {
@@ -80,9 +82,42 @@ export class PoolController {
             lastPrice: 0,
             requestCount: 1,
             lastRequestTime: Date.now(),
+            refCount: 1, // First user
           });
         }
       }
+    }
+  }
+
+  /**
+   * Increment reference count for a pool
+   * Called when a user starts watching this pool
+   * 
+   * @param poolAddress Pool contract address
+   * @param chainId Chain ID
+   */
+  public incrementRefCount(poolAddress: string, chainId: number): void {
+    const poolKey = `${chainId}:${poolAddress}`;
+    const pool = this.aliveSet.get(poolKey);
+    if (pool) {
+      pool.refCount++;
+      console.log(`📈 [POOL] refCount++ for ${poolAddress.slice(0, 6)}... (now ${pool.refCount})`);
+    }
+  }
+
+  /**
+   * Decrement reference count for a pool
+   * Called when a user stops watching this pool
+   * 
+   * @param poolAddress Pool contract address
+   * @param chainId Chain ID
+   */
+  public decrementRefCount(poolAddress: string, chainId: number): void {
+    const poolKey = `${chainId}:${poolAddress}`;
+    const pool = this.aliveSet.get(poolKey);
+    if (pool) {
+      pool.refCount = Math.max(0, pool.refCount - 1);
+      console.log(`📉 [POOL] refCount-- for ${poolAddress.slice(0, 6)}... (now ${pool.refCount})`);
     }
   }
 
@@ -158,6 +193,21 @@ export class PoolController {
     const pool = this.aliveSet.get(poolAddress);
     if (pool) {
       pool.lastBlockSeen = blockNumber;
+    }
+  }
+
+  /**
+   * PHASE 6: Remove a specific pool from alive set
+   * Called by GCManager when pool's grace period expires
+   * 
+   * @param poolAddress Pool contract address
+   * @param chainId Chain ID
+   */
+  public removePool(poolAddress: string, chainId: number): void {
+    const poolKey = `${chainId}:${poolAddress}`;
+    const removed = this.aliveSet.delete(poolKey);
+    if (removed) {
+      console.log(`🗑️ [POOL] Removed ${poolAddress.slice(0, 6)}... from alive set`);
     }
   }
 

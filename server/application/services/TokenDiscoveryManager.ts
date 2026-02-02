@@ -1,22 +1,20 @@
 /**
- * TokenDiscoveryManager - On-Demand Pool Discovery
+ * TokenDiscoveryManager - Subgraph-Based Pool Discovery
  * 
  * RESPONSIBILITY:
- * - Discover pools for tokens that have no pricing routes
- * - Batch discovery for efficiency (one pass, multiple tokens)
- * - Update pool registry and save to storage
- * - Track discovery attempts to avoid duplicate work
- * 
- * LAZY DISCOVERY TRIGGER:
- * - Called from MarketViewerService when insufficient-data detected
- * - Only discovers pools for tokens missing from pricingRoutes
- * - Caches discovery results (success or failure) for TTL window
+ * - Discover pools for tokens via subgraph queries (no on-chain guessing)
+ * - For each token, query all DEX subgraphs
+ * - Find pools paired with base tokens
+ * - Rank by liquidity and keep pools contributing ≥90% total liquidity
+ * - Store topology with per-token timestamp for 7-day TTL
+ * - Track discovery attempts to prevent duplicate queries within 5-min window
  */
 
 import { StorageService } from './StorageService';
-import { EthersAdapter } from '../../infrastructure/adapters/EthersAdapter';
 import { Token } from '../../domain/entities';
 import { PoolRegistry, PoolMetadata, PricingRoute } from '../../domain/types';
+import { subgraphConfig, BASE_TOKENS } from '../../infrastructure/config/SubgraphConfig';
+import { timingConfig } from '../../infrastructure/config/TimingConfig';
 
 interface DiscoveryAttempt {
   tokenAddress: string;
@@ -26,137 +24,314 @@ interface DiscoveryAttempt {
   succeeded: boolean;
 }
 
+interface SubgraphPool {
+  id: string; // Pool address
+  token0: {
+    id: string;
+    symbol: string;
+    decimals: string;
+  };
+  token1: {
+    id: string;
+    symbol: string;
+    decimals: string;
+  };
+  reserveUSD: string;
+  liquidity?: string; // V3 only
+  feeTier?: string; // V3 only
+}
+
 export class TokenDiscoveryManager {
   private discoveryAttempts: Map<string, DiscoveryAttempt> = new Map();
-  private readonly DISCOVERY_RETRY_WINDOW = 5 * 60 * 1000; // 5 minutes - don't re-discover same token within this window
-  private readonly FEE_TIERS = [100, 500, 3000, 10000];
-  private readonly BASE_TOKENS: Record<number, string[]> = {
-    1: [
-      '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
-      '0xdac17f958d2ee523a2206206994597c13d831ec7', // USDT
-      '0x6b175474e89094c44da98b954eedeac495271d0f', // DAI
-      '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
-    ],
-    137: [
-      '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-      '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
-      '0x8f3cf7ad23cd3cadbd9735aff958023d60d76ee6', // DAI
-      '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', // WETH
-      '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', // WMATIC
-    ],
-  };
+  private readonly DISCOVERY_RETRY_WINDOW = timingConfig.DISCOVERY_RETRY_WINDOW_MS;
+  private readonly LIQUIDITY_THRESHOLD = timingConfig.LIQUIDITY_THRESHOLD;
+  private readonly TTL_7_DAYS = timingConfig.DISCOVERY_TOPOLOGY_TTL_MS;
 
-  constructor(
-    private storageService: StorageService,
-    private ethersAdapter: EthersAdapter,
-  ) {}
+  constructor(private storageService: StorageService) {}
 
   /**
-   * Batch discover pools for multiple tokens
+   * Discover pools for multiple tokens using subgraph queries
+   * 
+   * For each token:
+   * 1. Query all subgraphs configured for the chain
+   * 2. Find pools where token is paired with a base token
+   * 3. Rank by liquidity, keep top pools contributing ≥90%
+   * 4. Store in registry with timestamp for TTL tracking
    * 
    * @param tokens Tokens to discover pools for
    * @param chainId Network chain ID
-   * @returns Total number of pools discovered across all tokens
+   * @returns Total number of pools discovered
    */
   public async discoverPoolsForTokens(tokens: Token[], chainId: number): Promise<number> {
-    console.log(`🔍 [BATCH DISCOVERY] Discovering pools for ${tokens.length} token(s) on chain ${chainId}`);
+    console.log(`🔍 [SUBGRAPH DISCOVERY] Discovering pools for ${tokens.length} token(s) on chain ${chainId}`);
     
-    // Load current registry
     const poolRegistry = await this.storageService.getPoolRegistry(chainId);
     let poolsDiscoveredThisBatch = 0;
 
-    // Discover pools for each token
+    // Initialize topologyTimestamp map if missing
+    if (!poolRegistry.topologyTimestamp) {
+      poolRegistry.topologyTimestamp = {};
+    }
+
     for (const token of tokens) {
       const attemptKey = `${token.address.toLowerCase()}-${chainId}`;
       
-      // Check if we've already tried discovering this token recently
+      // Check if already discovered recently (within 5-min retry window)
       const lastAttempt = this.discoveryAttempts.get(attemptKey);
       if (lastAttempt && (Date.now() - lastAttempt.attemptedAt) < this.DISCOVERY_RETRY_WINDOW) {
         console.log(`⏭️  Skipping ${token.symbol}: already attempted ${Math.round((Date.now() - lastAttempt.attemptedAt) / 1000)}s ago`);
         continue;
       }
 
-      console.log(`\n🔎 Discovering pools for ${token.symbol}...`);
+      console.log(`\n🔎 Discovering pools for ${token.symbol} (${token.address.slice(0, 6)}...)`);
       let poolsFoundForToken = 0;
 
-      // Try pairing with each base token
-      const baseTokens = this.BASE_TOKENS[chainId] || [];
-      for (const baseToken of baseTokens) {
-        // Try each fee tier
-        for (const fee of this.FEE_TIERS) {
-          try {
-            // Create Token objects for EthersAdapter
-            const tokenAFull: Token = { 
-              address: token.address, 
-              symbol: token.symbol, 
-              name: token.name || token.symbol,
-              decimals: token.decimals, 
-              chainId 
-            };
-            const tokenBFull: Token = { 
-              address: baseToken, 
-              symbol: 'BASE', 
-              name: 'BASE',
-              decimals: 18, 
-              chainId 
-            };
-            const poolAddress = await this.ethersAdapter.getPoolAddress(tokenAFull, tokenBFull, chainId, fee);
-            
-            if (poolAddress) {
-              // Fetch pool state to get token0/token1
-              const poolState = await this.ethersAdapter.getPoolState(poolAddress, chainId);
-              
-              // Add to registry
-              this.addPoolToRegistry(poolRegistry, poolAddress, poolState, fee);
-              poolsFoundForToken++;
-              poolsDiscoveredThisBatch++;
-              
-              console.log(`     ✓ Pool found: ${poolAddress.slice(0,6)}... (${poolState.token0.slice(0,6)}...-${poolState.token1.slice(0,6)}...)`);
-            }
+      try {
+        // Query all subgraphs for this chain
+        const subgraphs = subgraphConfig[chainId] || [];
+        const allPools: SubgraphPool[] = [];
 
-            // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
+        for (const subgraph of subgraphs) {
+          console.log(`   → Querying ${subgraph.name}...`);
+          try {
+            const pools = await this.querySubgraphForToken(token.address, subgraph, chainId);
+            allPools.push(...pools);
+            console.log(`     ✓ Found ${pools.length} pool(s)`);
           } catch (error: any) {
-            // Pool doesn't exist - normal case
+            console.warn(`     ⚠️  Query failed: ${error.message}`);
           }
         }
+
+        // Rank pools by liquidity and filter to 90% threshold
+        const rankedPools = this.filterPoolsByLiquidity(allPools, this.LIQUIDITY_THRESHOLD);
+        console.log(`   → After 90% filtering: ${rankedPools.length} pool(s)`);
+
+        // Add pools to registry
+        for (const pool of rankedPools) {
+          this.addPoolToRegistry(poolRegistry, pool, chainId);
+          poolsFoundForToken++;
+          poolsDiscoveredThisBatch++;
+        }
+
+        // Record timestamp for this token's topology (TTL tracking)
+        const tokenLower = token.address.toLowerCase();
+        poolRegistry.topologyTimestamp![tokenLower] = Date.now();
+
+        // Record successful discovery attempt
+        this.discoveryAttempts.set(attemptKey, {
+          tokenAddress: token.address,
+          chainId,
+          attemptedAt: Date.now(),
+          poolsFound: poolsFoundForToken,
+          succeeded: true,
+        });
+
+        console.log(`   ✓ ${token.symbol}: Added ${poolsFoundForToken} pool(s) to registry`);
+      } catch (error: any) {
+        console.error(`   ✗ Error discovering pools for ${token.symbol}:`, error.message);
+
+        // Record failed attempt
+        this.discoveryAttempts.set(attemptKey, {
+          tokenAddress: token.address,
+          chainId,
+          attemptedAt: Date.now(),
+          poolsFound: 0,
+          succeeded: false,
+        });
       }
-
-      // Record discovery attempt
-      this.discoveryAttempts.set(attemptKey, {
-        tokenAddress: token.address,
-        chainId,
-        attemptedAt: Date.now(),
-        poolsFound: poolsFoundForToken,
-        succeeded: poolsFoundForToken > 0,
-      });
-
-      console.log(`   → Found ${poolsFoundForToken} pool(s) for ${token.symbol}`);
     }
 
     // Save updated registry
     await this.storageService.savePoolRegistry(chainId, poolRegistry);
-    console.log(`\n✅ [BATCH DISCOVERY] Complete: ${poolsDiscoveredThisBatch} total pools discovered`);
+    console.log(`\n✅ [SUBGRAPH DISCOVERY] Complete: ${poolsDiscoveredThisBatch} total pools discovered`);
     
     return poolsDiscoveredThisBatch;
   }
 
   /**
-   * Add a discovered pool to the pool registry
+   * Check if token topology needs refresh based on TTL
    * 
-   * Creates pool metadata and pricing routes for both tokens in the pool.
+   * @param tokenAddress Token address (lowercase)
+   * @param chainId Network chain ID
+   * @returns true if timestamp missing or older than 7 days
+   */
+  public async isTopologyStale(tokenAddress: string, chainId: number): Promise<boolean> {
+    const poolRegistry = await this.storageService.getPoolRegistry(chainId);
+    const tokenLower = tokenAddress.toLowerCase();
+
+    // Missing timestamp = stale
+    if (!poolRegistry.topologyTimestamp?.[tokenLower]) {
+      return true;
+    }
+
+    // Check age
+    const timestamp = poolRegistry.topologyTimestamp[tokenLower];
+    const age = Date.now() - timestamp;
+    const isStale = age > this.TTL_7_DAYS;
+
+    if (isStale) {
+      console.log(`⏰ Topology for ${tokenAddress.slice(0, 6)}... is stale (${Math.round(age / (24 * 60 * 60 * 1000))}d old)`);
+    }
+
+    return isStale;
+  }
+
+  /**
+   * Query a subgraph for pools involving a specific token and base tokens
+   * 
+   * @param tokenAddress Target token address
+   * @param subgraph Subgraph configuration
+   * @param chainId Network chain ID
+   * @returns Array of pools from subgraph
+   */
+  private async querySubgraphForToken(
+    tokenAddress: string,
+    subgraph: typeof subgraphConfig[1][0],
+    chainId: number
+  ): Promise<SubgraphPool[]> {
+    const baseTokens = BASE_TOKENS[chainId] || [];
+    const tokenLower = tokenAddress.toLowerCase();
+    const baseTokensLower = baseTokens.map(t => t.toLowerCase());
+
+    // Build query: find pools where token is paired with any base token
+    const query = this.buildPoolQuery(tokenLower, baseTokensLower, subgraph.dexType);
+
+    try {
+      const response = await fetch(subgraph.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json() as any;
+
+      if (data.errors) {
+        throw new Error(data.errors[0]?.message || 'Subgraph error');
+      }
+
+      // Extract pools from response (structure varies by subgraph)
+      const pools = data.data?.pairs || data.data?.pools || [];
+      return pools;
+    } catch (error: any) {
+      throw new Error(`Failed to query ${subgraph.name}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Build GraphQL query for pool discovery
+   * 
+   * Queries depend on DEX type (V2 uses "pairs", V3 uses "pools")
+   */
+  private buildPoolQuery(tokenAddress: string, baseTokens: string[], dexType: string): string {
+    const baseTokenFilters = baseTokens.map(addr => `"${addr}"`).join(',');
+
+    if (dexType === 'v2') {
+      // V2: Query for pairs involving the token and any base token
+      return `{
+        pairs(
+          first: 1000
+          where: {
+            or: [
+              { token0: "${tokenAddress}", token1_in: [${baseTokenFilters}] }
+              { token1: "${tokenAddress}", token0_in: [${baseTokenFilters}] }
+            ]
+          }
+          orderBy: reserveUSD
+          orderDirection: desc
+        ) {
+          id
+          token0 { id symbol decimals }
+          token1 { id symbol decimals }
+          reserveUSD
+        }
+      }`;
+    } else {
+      // V3: Query for pools involving the token and any base token
+      return `{
+        pools(
+          first: 1000
+          where: {
+            or: [
+              { token0: "${tokenAddress}", token1_in: [${baseTokenFilters}] }
+              { token1: "${tokenAddress}", token0_in: [${baseTokenFilters}] }
+            ]
+          }
+          orderBy: totalValueLockedUSD
+          orderDirection: desc
+        ) {
+          id
+          token0 { id symbol decimals }
+          token1 { id symbol decimals }
+          reserveUSD: totalValueLockedUSD
+          feeTier
+          liquidity
+        }
+      }`;
+    }
+  }
+
+  /**
+   * Filter pools by liquidity threshold
+   * 
+   * Rank by reserveUSD, keep pools that cumulatively contribute ≥90% of total
+   */
+  private filterPoolsByLiquidity(pools: SubgraphPool[], threshold: number): SubgraphPool[] {
+    if (pools.length === 0) return [];
+
+    // Parse liquidity values and sort descending
+    type PoolWithParsedLiquidity = SubgraphPool & { __liquidity: number };
+
+    const parsed: PoolWithParsedLiquidity[] = pools
+      .map(p => ({
+        ...p,
+        __liquidity: parseFloat(p.reserveUSD || '0'),
+      })) as PoolWithParsedLiquidity[];
+
+    const sorted = parsed.sort((a, b) => b.__liquidity - a.__liquidity);
+
+    const totalLiquidity = sorted.reduce((sum, p) => sum + p.__liquidity, 0);
+    if (totalLiquidity === 0) return [];
+
+    // Keep pools until cumulative threshold reached
+    let cumulativeLiquidity = 0;
+    const filtered: SubgraphPool[] = [];
+
+    for (const pool of sorted) {
+      cumulativeLiquidity += pool.__liquidity;
+      // Return the pool without the temporary property
+      const { __liquidity, ...poolData } = pool;
+      filtered.push(poolData as SubgraphPool);
+
+      if (cumulativeLiquidity / totalLiquidity >= threshold) {
+        break;
+      }
+    }
+
+    console.log(`   Liquidity: total=${totalLiquidity.toFixed(0)}, kept=${cumulativeLiquidity.toFixed(0)} (${(cumulativeLiquidity / totalLiquidity * 100).toFixed(1)}%)`);
+    return filtered;
+  }
+
+  /**
+   * Add a discovered pool to the registry
+   * 
+   * Creates pool metadata and pricing routes for both tokens
    */
   private addPoolToRegistry(
     registry: PoolRegistry,
-    poolAddress: string,
-    poolState: any,
-    fee: number | undefined
+    pool: SubgraphPool,
+    chainId: number
   ): void {
-    const { token0, token1 } = poolState;
+    const poolAddress = pool.id.toLowerCase();
+    const token0 = pool.token0.id.toLowerCase();
+    const token1 = pool.token1.id.toLowerCase();
 
-    // Determine DEX type from fee (V3 has fee, V2 doesn't)
-    const dexType = fee ? "v3" : "v2";
-    const weight = dexType === "v3" ? 2 : 1;
+    // Determine DEX type (V3 has feeTier)
+    const dexType = pool.feeTier ? 'v3' : 'v2';
+    const weight = dexType === 'v3' ? 2 : 1;
 
     // Create pool metadata
     const poolMetadata: PoolMetadata = {
@@ -164,32 +339,28 @@ export class TokenDiscoveryManager {
       dexType,
       token0,
       token1,
-      feeTier: fee,
+      feeTier: pool.feeTier ? parseInt(pool.feeTier, 10) : undefined,
       weight,
     };
 
     // Add to registry
     registry.pools[poolAddress] = poolMetadata;
 
-    // Create pricing routes with NORMALIZED (lowercase) keys
-    const token0Lower = token0.toLowerCase();
-    const token1Lower = token1.toLowerCase();
-
-    if (!registry.pricingRoutes[token0Lower]) {
-      registry.pricingRoutes[token0Lower] = [];
+    // Create pricing routes
+    if (!registry.pricingRoutes[token0]) {
+      registry.pricingRoutes[token0] = [];
     }
-    if (!registry.pricingRoutes[token1Lower]) {
-      registry.pricingRoutes[token1Lower] = [];
+    if (!registry.pricingRoutes[token1]) {
+      registry.pricingRoutes[token1] = [];
     }
 
-    // Add route from token0 to token1
-    registry.pricingRoutes[token0Lower].push({
+    // Add routes
+    registry.pricingRoutes[token0].push({
       pool: poolAddress,
       base: token1,
     });
 
-    // Add route from token1 to token0
-    registry.pricingRoutes[token1Lower].push({
+    registry.pricingRoutes[token1].push({
       pool: poolAddress,
       base: token0,
     });

@@ -3,8 +3,13 @@ import { api } from "../shared/routes.ts";
 import { priceViewerService } from "./application/services/PriceViewerService.ts";
 import { SwapController } from "./application/services/SwapController.ts";
 import { sharedStateCache } from "./application/services/SharedStateCache.ts";
+import { poolController } from "./application/services/PoolController.ts";
 import { MarketViewerService, createMarketViewerService } from "./application/services/MarketViewerService.ts";
 import { getApiCallLogger } from "./infrastructure/logging/ApiCallLogger.ts";
+import { timingConfig } from "./infrastructure/config/TimingConfig.ts";
+import { logoSourcesConfig } from "./infrastructure/config/LogoSourcesConfig.ts";
+import { logoFetcherAdapter } from "./infrastructure/adapters/LogoFetcherAdapter.ts";
+import { MockPoolDataConfig } from "./infrastructure/config/MockPoolDataConfig.ts";
 import type { QuoteResponse, SwapQuote, MarketOverview } from "../shared/schema.ts";
 
 export async function registerRoutes(
@@ -15,7 +20,55 @@ export async function registerRoutes(
   // Initialize services
   const marketViewerService = createMarketViewerService(app.locals.storageService);
   const apiLogger = getApiCallLogger();
-  const TOKENS_PER_PAGE = 15;
+  const TOKENS_PER_PAGE = timingConfig.TOKENS_PER_PAGE;
+
+  /**
+   * PHASE 8: Sort tokens by specified field
+   * Supported fields: symbol, name, address, decimals
+   * @param tokens Array of tokens to sort
+   * @param sortParam Sort field (format: "field" or "field_desc" for descending)
+   * @returns Sorted token array
+   */
+  const sortTokens = (tokens: any[], sortParam: string): any[] => {
+    const isDescending = sortParam.endsWith('_desc');
+    const sortField = isDescending ? sortParam.slice(0, -5) : sortParam;
+    
+    const sorted = [...tokens].sort((a, b) => {
+      let aVal: any, bVal: any;
+      
+      switch (sortField) {
+        case 'symbol':
+          aVal = (a.symbol || '').toLowerCase();
+          bVal = (b.symbol || '').toLowerCase();
+          break;
+        case 'name':
+          aVal = (a.name || '').toLowerCase();
+          bVal = (b.name || '').toLowerCase();
+          break;
+        case 'address':
+          aVal = (a.address || '').toLowerCase();
+          bVal = (b.address || '').toLowerCase();
+          break;
+        case 'decimals':
+          aVal = a.decimals || 0;
+          bVal = b.decimals || 0;
+          break;
+        default:
+          // Default to symbol
+          aVal = (a.symbol || '').toLowerCase();
+          bVal = (b.symbol || '').toLowerCase();
+      }
+      
+      // Compare
+      if (typeof aVal === 'string') {
+        return isDescending ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
+      } else {
+        return isDescending ? bVal - aVal : aVal - bVal;
+      }
+    });
+    
+    return sorted;
+  };
 
   app.get(api.tokens.getAll.path, async (req, res) => {
     try {
@@ -25,17 +78,21 @@ export async function registerRoutes(
         return res.status(400).json({ message: "chainId is required and must be 1 (Ethereum) or 137 (Polygon)" });
       }
       
-      // Get pagination parameters
+      // Get pagination and sorting parameters
       const page = req.query.page ? Math.max(1, Number(req.query.page)) : 1;
-      console.log(`📋 Fetching tokens: chain=${chainId}, page=${page}, pageSize=${TOKENS_PER_PAGE}`);
+      const sortParam = (req.query.sort as string) || 'symbol'; // Default: sort by symbol
+      console.log(`📋 Fetching tokens: chain=${chainId}, page=${page}, sort=${sortParam}, pageSize=${TOKENS_PER_PAGE}`);
       
       // COLD PATH: Fetch ONLY tokens for selected network
       const tokens = await app.locals.storageService.getTokensByNetwork(chainId);
       const poolRegistry = await app.locals.storageService.getPoolRegistry(chainId);
       
+      // PHASE 8: Sort tokens before pagination
+      const sortedTokens = sortTokens(tokens, sortParam);
+      
       // Calculate pagination
       const startIndex = (page - 1) * TOKENS_PER_PAGE;
-      const paginatedTokens = tokens.slice(startIndex, startIndex + TOKENS_PER_PAGE);
+      const paginatedTokens = sortedTokens.slice(startIndex, startIndex + TOKENS_PER_PAGE);
       
       console.log(`✓ Token pagination: ${paginatedTokens.length} tokens returned (total: ${tokens.length}, page: ${page})`);
       
@@ -52,6 +109,7 @@ export async function registerRoutes(
       res.json({ 
         tokens: tokensWithPools, 
         chainId,
+        sort: sortParam,
         pagination: {
           currentPage: page,
           pageSize: TOKENS_PER_PAGE,
@@ -183,6 +241,66 @@ export async function registerRoutes(
     }
   });
 
+  /**
+   * POST /api/market/stay-alive
+   * Client sends periodic keep-alive to maintain pool refresh
+   * Request: { tokenAddresses: [addr1, addr2, ...], chainId: 137, ttl: 30000 }
+   * Backend: Increments refCount for each token's pricing pools
+   * 
+   * This implements the demand-driven refresh protocol:
+   * - Client sends stay-alive every 30s while user watches tokens
+   * - Backend increments refCount on each request
+   * - GCManager decrements and removes pools when refCount=0
+   */
+  app.post('/api/market/stay-alive', async (req, res) => {
+    try {
+      const { tokenAddresses, chainId, ttl } = req.body;
+
+      if (!tokenAddresses || !Array.isArray(tokenAddresses)) {
+        return res.status(400).json({ message: "tokenAddresses must be an array" });
+      }
+
+      if (!chainId || (chainId !== 1 && chainId !== 137)) {
+        return res.status(400).json({ message: "chainId is required and must be 1 (Ethereum) or 137 (Polygon)" });
+      }
+
+      console.log(`💓 [STAY-ALIVE] Request for ${tokenAddresses.length} tokens on chain ${chainId}`);
+      const startTime = Date.now();
+
+      // Get pool registry for this chain
+      const poolRegistry = await app.locals.storageService.getPoolRegistry(chainId);
+
+      // For each token, increment refCount for all its pricing pools
+      let totalPoolsIncremented = 0;
+      for (const tokenAddr of tokenAddresses) {
+        const tokenLower = tokenAddr.toLowerCase();
+        const routes = poolRegistry.pricingRoutes[tokenLower] || [];
+        
+        for (const route of routes) {
+          // PoolController.incrementRefCount handles the tracking
+          poolController.incrementRefCount(route.pool, chainId);
+          totalPoolsIncremented++;
+        }
+      }
+
+      const durationMs = Date.now() - startTime;
+
+      console.log(`✓ [STAY-ALIVE] Incremented refCount for ${totalPoolsIncremented} pools (${durationMs}ms)`);
+
+      res.json({
+        message: "Stay-alive updated",
+        tokenCount: tokenAddresses.length,
+        poolsIncremented: totalPoolsIncremented,
+        chainId,
+        ttl,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error('[STAY-ALIVE] Error:', error);
+      res.status(500).json({ message: "Error processing stay-alive request" });
+    }
+  });
+
   // SWAPPER ENDPOINTS
   
   /**
@@ -191,6 +309,176 @@ export async function registerRoutes(
    * Request: { tokenIn, tokenOut, amountIn, chainId }
    * Returns: QuoteResponse with route and amount details
    */
+  /**
+   * POST /api/tokens
+   * Add a new token address for discovery and validation
+   * 
+   * Request body:
+   * {
+   *   "tokenAddress": "0x...",
+   *   "chainId": 137
+   * }
+   * 
+   * Flow:
+   * 1. Fetch token metadata from contract (name, symbol, decimals)
+   * 2. Add to quarantine registry with fetched metadata
+   * 3. QuarantineValidator will discover pools and validate
+   * 4. On validation pass: promote to primary registry
+   * 
+   * Response:
+   * {
+   *   "message": "Token added to quarantine",
+   *   "tokenAddress": "0x...",
+   *   "metadata": { "symbol": "...", "name": "...", "decimals": 18 },
+   *   "status": "pending"
+   * }
+   */
+  app.post('/api/tokens', async (req, res) => {
+    try {
+      const { tokenAddress, chainId } = req.body;
+
+      // Validate inputs
+      if (!tokenAddress || !chainId) {
+        return res.status(400).json({ message: 'tokenAddress and chainId required' });
+      }
+
+      if (!/^0x[a-fA-F0-9]{40}$/.test(tokenAddress)) {
+        return res.status(400).json({ message: 'Invalid token address format' });
+      }
+
+      if (chainId !== 1 && chainId !== 137) {
+        return res.status(400).json({ message: 'chainId must be 1 (Ethereum) or 137 (Polygon)' });
+      }
+
+      console.log(`➕ [TOKENS] Adding token ${tokenAddress.slice(0, 8)}... on chain ${chainId}`);
+
+      const tokenKey = tokenAddress.toLowerCase();
+
+      // FIX #1: Load registries in parallel instead of sequentially
+      const [primaryTokens, quarantine] = await Promise.all([
+        app.locals.storageService.getTokensByNetwork(chainId),
+        app.locals.storageService.getQuarantineRegistry(chainId),
+      ]);
+      if (primaryTokens.some((t: any) => t.address.toLowerCase() === tokenKey)) {
+        return res.status(409).json({
+          message: 'Token already exists',
+          status: 'exists',
+          tokenAddress,
+        });
+      }
+
+      // Check if already in quarantine
+      if (quarantine.entries[tokenKey]) {
+        const entry = quarantine.entries[tokenKey];
+        if (entry.promoted) {
+          return res.status(409).json({
+            message: 'Token already promoted',
+            status: 'promoted',
+            tokenAddress,
+          });
+        }
+        return res.status(409).json({
+          message: 'Token already in quarantine',
+          status: 'pending',
+          tokenAddress,
+          metadata: entry.metadata,
+        });
+      }
+
+      // IDENTITY: Fetch token metadata from contract + explorer
+      // First try explorer API (returns name, symbol, decimals, AND logo)
+      // Fallback sources: LogoFetcherAdapter (CoinGecko, Uniswap, Trust Wallet, 1inch)
+      // Final fallback: RPC if all APIs fail
+      let metadata;
+      try {
+        console.log(`  🔗 Fetching metadata from explorer for ${tokenAddress.slice(0, 8)}...`);
+        const explorer = app.locals.explorerConfig.getExplorer(chainId);
+        let explorerLogo = '';
+        
+        if (explorer.apiKey) {
+          try {
+            const explorerUrl = `${explorer.baseUrl}?module=token&action=tokeninfo&contractaddress=${tokenAddress}&apikey=${explorer.apiKey}`;
+            const explorerResponse = await fetch(explorerUrl);
+            const explorerData = await explorerResponse.json() as any;
+            
+            if (explorerData.status === "1" && explorerData.result && explorerData.result[0]) {
+              const info = explorerData.result[0];
+              explorerLogo = info.logo || info.logoURI || '';
+              metadata = {
+                name: info.tokenName || info.name || 'Unknown Token',
+                symbol: info.symbol || 'UNKNOWN',
+                decimals: parseInt(info.divisor || info.decimals || '18'),
+                logoURI: explorerLogo,
+                logoFetchedAt: Date.now(),
+              };
+              console.log(`  ✓ Fetched from ${explorer.name}: ${metadata.symbol} (${metadata.name}), decimals=${metadata.decimals}, logo=${metadata.logoURI ? 'yes' : 'no'}`);
+            }
+          } catch (err) {
+            console.log(`  ⚠️  Explorer API failed, trying fallback sources`);
+          }
+        }
+        
+        // If explorer didn't return a logo, try fallback sources
+        if (!explorerLogo && metadata) {
+          console.log(`  🔄 Explorer had no logo, trying fallback sources...`);
+          const fallbackLogo = await logoFetcherAdapter.fetchLogoFromFallbacks(tokenAddress, chainId);
+          if (fallbackLogo) {
+            metadata.logoURI = fallbackLogo;
+            metadata.logoFetchedAt = Date.now();
+          }
+        }
+        
+        // Fallback: fetch from contract RPC if explorer failed completely
+        if (!metadata) {
+          console.log(`  📝 Fetching from contract RPC for ${tokenAddress.slice(0, 8)}...`);
+          const rpcMetadata = await app.locals.ethersAdapter.getTokenMetadata(tokenAddress, chainId);
+          
+          // Try to get logo from fallback sources even if RPC succeeds
+          const fallbackLogo = await logoFetcherAdapter.fetchLogoFromFallbacks(tokenAddress, chainId);
+          
+          metadata = {
+            ...rpcMetadata,
+            logoURI: fallbackLogo,
+            logoFetchedAt: fallbackLogo ? Date.now() : undefined,
+          };
+          console.log(`  ✓ Fetched from RPC: ${metadata.symbol} (${metadata.name}), decimals=${metadata.decimals}`);
+        }
+      } catch (err) {
+        console.error(`  ❌ Error fetching metadata:`, err);
+        metadata = {
+          symbol: 'UNKNOWN',
+          name: 'Unknown Token',
+          decimals: 18,
+          logoURI: '',
+        };
+      }
+
+      // Add to quarantine registry with fetched metadata
+      quarantine.entries[tokenKey] = {
+        address: tokenKey,
+        metadata,
+        discoveredAt: Date.now(),
+        validationScheduled: false,
+        promoted: false,
+      };
+
+      // Save quarantine registry
+      await app.locals.storageService.saveQuarantineRegistry(chainId, quarantine);
+
+      console.log(`✅ [TOKENS] Token ${tokenAddress.slice(0, 8)}... added to quarantine for validation`);
+
+      res.json({
+        message: 'Token added to quarantine',
+        tokenAddress,
+        metadata,
+        status: 'pending',
+      });
+    } catch (error) {
+      console.error('[TOKENS] Error adding token:', error);
+      res.status(500).json({ message: 'Error adding token' });
+    }
+  });
+
   app.post('/api/swap/quote', async (req, res) => {
     try {
       const { tokenIn, tokenOut, amountIn, chainId } = req.body;
@@ -257,55 +545,29 @@ export async function registerRoutes(
   // Test endpoint to populate mock pool data for UI testing
   app.post('/api/test/populate-pools', async (req, res) => {
     try {
-      // Polygon USDC address
-      const USDC = '0x2791Bca1f2de4661ED88A30C99a7a9449Aa84174';
-      // Polygon WETH address
-      const WETH = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619';
-      // Polygon WMATIC address
-      const WMATIC = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270';
-      // Polygon USDT address
-      const USDT = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F';
-
-      // Mock pool: USDC-WETH
-      sharedStateCache.setPoolState('0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640', {
-        address: '0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640',
-        token0: USDC,
-        token1: WETH,
-        liquidity: BigInt('1000000000000000000000'),
-        sqrtPriceX96: BigInt('1766847064778384329583297500742918515827483896875618543824'),
-        fee: 3000,
-        timestamp: Math.floor(Date.now() / 1000),
-      });
-
-      // Mock pool: WMATIC-USDC
-      sharedStateCache.setPoolState('0xA374094527e1673A86dE625aa59517c5dE346d32', {
-        address: '0xA374094527e1673A86dE625aa59517c5dE346d32',
-        token0: WMATIC,
-        token1: USDC,
-        liquidity: BigInt('500000000000000000000'),
-        sqrtPriceX96: BigInt('1000000000000000000000'),
-        fee: 3000,
-        timestamp: Math.floor(Date.now() / 1000),
-      });
-
-      // Mock pool: WETH-USDT
-      sharedStateCache.setPoolState('0x781067Ef296E5C4A4203F81C593274824b7C185d', {
-        address: '0x781067Ef296E5C4A4203F81C593274824b7C185d',
-        token0: WETH,
-        token1: USDT,
-        liquidity: BigInt('800000000000000000000'),
-        sqrtPriceX96: BigInt('1500000000000000000000'),
-        fee: 3000,
-        timestamp: Math.floor(Date.now() / 1000),
-      });
+      const timestamp = Math.floor(Date.now() / 1000);
+      
+      // Populate mock pools with timestamps
+      for (const poolData of MockPoolDataConfig.pools) {
+        sharedStateCache.setPoolState(poolData.address, {
+          ...poolData,
+          timestamp,
+        });
+      }
 
       // Set token metadata
-      sharedStateCache.setTokenMetadata(USDC, { symbol: 'USDC', name: 'USD Coin', decimals: 6 });
-      sharedStateCache.setTokenMetadata(WETH, { symbol: 'WETH', name: 'Wrapped Ether', decimals: 18 });
-      sharedStateCache.setTokenMetadata(WMATIC, { symbol: 'WMATIC', name: 'Wrapped Matic', decimals: 18 });
-      sharedStateCache.setTokenMetadata(USDT, { symbol: 'USDT', name: 'Tether USD', decimals: 6 });
+      for (const token of Object.values(MockPoolDataConfig.tokens)) {
+        sharedStateCache.setTokenMetadata(token.address, {
+          symbol: token.symbol,
+          name: token.name,
+          decimals: token.decimals,
+        });
+      }
 
-      res.json({ message: 'Mock pools populated successfully', poolsCount: 3 });
+      res.json({
+        message: 'Mock pools populated successfully',
+        poolsCount: MockPoolDataConfig.pools.length,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error populating test data" });

@@ -39,14 +39,16 @@ export class DiscoveryService {
     const BATCH_DELAY_MS = 100; // Delay between batches, not per-token
     
     for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-      const batch = tokens.slice(i, i + BATCH_SIZE);
+      const batch = tokens.slice(i, i + BATCH_SIZE).filter(t => t && t.address && t.chainId);
       
       const metadataPromises = batch.map(async (token) => {
         try {
+          if (!token || !token.address || !token.chainId) return;
+          const tokenSymbol = token.symbol || 'N/A';
           let metadata: TokenMetadata | null = null;
           try {
             const explorer = explorerConfig.getExplorer(token.chainId);
-            if (explorer.apiKey) {
+            if (explorer && explorer.apiKey) {
               const url = `${explorer.baseUrl}?module=token&action=tokeninfo&contractaddress=${token.address}&apikey=${explorer.apiKey}`;
               const response = await fetch(url);
               const data = await response.json() as any;
@@ -59,11 +61,11 @@ export class DiscoveryService {
                   logoURI: info.logo || info.logoURI || '',
                   logoFetchedAt: (info.logo || info.logoURI) ? Date.now() : undefined,
                 };
-                console.log(`  ✓ ${token.symbol} metadata fetched via Explorer API (with logo)`);
+                console.log(`  ✓ ${tokenSymbol} metadata fetched via Explorer API (with logo)`);
               }
             }
           } catch (e) {
-            console.warn(`  ⚠️  Explorer metadata fetch failed for ${token.symbol}, falling back to RPC`);
+            console.warn(`  ⚠️  Explorer metadata fetch failed for ${tokenSymbol}, falling back to RPC`);
           }
 
           if (!metadata) {
@@ -72,7 +74,7 @@ export class DiscoveryService {
           
           sharedStateCache.setTokenMetadata(token.address, metadata);
         } catch (error: any) {
-          console.error(`  ✗ Error fetching metadata for ${token.symbol}:`, error.message);
+          console.error(`  ✗ Error fetching metadata for ${token.symbol || 'N/A'}:`, error.message);
         }
       });
 
@@ -89,10 +91,12 @@ export class DiscoveryService {
     // PHASE 2: Discover Pool Topology using Subgraphs
     console.log('🔍 PHASE 2: Discovering pool topology via subgraphs...');
     const tokensByChain = tokens.reduce((acc, token) => {
-      if (!acc[token.chainId]) {
-        acc[token.chainId] = [];
+      if (token && token.chainId) {
+        if (!acc[token.chainId]) {
+          acc[token.chainId] = [];
+        }
+        acc[token.chainId].push(token);
       }
-      acc[token.chainId].push(token);
       return acc;
     }, {} as Record<number, Token[]>);
 
@@ -100,6 +104,8 @@ export class DiscoveryService {
     for (const chainIdStr in tokensByChain) {
       const chainId = parseInt(chainIdStr, 10);
       const chainTokens = tokensByChain[chainId];
+
+      if (!chainTokens || chainTokens.length === 0) continue;
 
       console.log(`\n📍 Chain ${chainId}: Checking ${chainTokens.length} tokens for stale topology...`);
 

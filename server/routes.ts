@@ -98,13 +98,17 @@ export async function registerRoutes(
       
       // Attach pricing pools to each token (cold path responsibility)
       const tokensWithPools = paginatedTokens.map((token: any) => {
-        const pools = poolRegistry.pricingRoutes[token.address.toLowerCase()] || [];
-        console.log(`   Token ${startIndex + paginatedTokens.indexOf(token) + 1}: ${token.symbol.padEnd(6)} ${token.address.slice(0,8)}... → ${pools.length} pricing route(s)`);
+        if (!token) return null;
+        const tokenLower = token.address?.toLowerCase();
+        if (!tokenLower) return { ...token, pricingPools: [] };
+        
+        const pools = poolRegistry?.pricingRoutes?.[tokenLower] || [];
+        console.log(`   Token ${startIndex + paginatedTokens.indexOf(token) + 1}: ${(token.symbol || 'N/A').padEnd(6)} ${token.address.slice(0,8)}... → ${pools.length} pricing route(s)`);
         return {
           ...token,
           pricingPools: pools,
         };
-      });
+      }).filter(Boolean);
       
       res.json({ 
         tokens: tokensWithPools, 
